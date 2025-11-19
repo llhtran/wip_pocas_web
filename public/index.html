@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pocas: A Speculative rehersal of collaborative tactics</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="timeline-shell">
+      <div class="timeline-top">
+        <div class="timeline-title">
+          <span>POCAS Timeline · 10-year rehearsal</span>
+        </div>
+        <button id="resetGameBtn" class="btn ghost danger sm">Reset Game</button>
+      </div>
+      <div id="timelineBar" class="timeline-bar"></div>
+    </header>
+    <main class="shell">
+      <header class="panel">
+        <div>
+          <h1 class="story">Pocas: A Speculative rehersal of collaborative tactics</h1>
+          <p>Local LM Studio powered drafts for Mexico City scenarios.</p>
+        </div>
+        <div class="controls">
+          <label for="difficulty">Difficulty</label>
+          <select id="difficulty" class="panel">
+            <option value="easy">Easy</option>
+            <option value="moderate" selected>Moderate</option>
+            <option value="difficult">Hard</option>
+            <option value="full">Wildcard</option>
+          </select>
+          <button id="generate" class="btn">Generate Setting</button>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div id="draft" class="story story-body">Request a draft to see results.</div>
+      </section>
+
+      <section class="panel">
+        <div class="participants-header">
+          <h2>Participants</h2>
+          <div class="participants-actions">
+            <button id="addParticipant" class="btn">Add Participant</button>
+            <button id="clearParticipantsBtn" class="btn ghost danger">Delete Players</button>
+          </div>
+        </div>
+
+        <div id="participantControls" class="participant-controls hidden">
+          <p class="note">
+            Choose whether to bring your own character or let the engine create one that fits the
+            current scenario.
+          </p>
+          <div class="participant-options">
+            <button id="participantCreateBtn" class="btn ghost" type="button">Create your own</button>
+            <button id="participantGenerateBtn" class="btn ghost" type="button">
+              Generate a character
+            </button>
+          </div>
+
+          <form id="participantForm" class="participant-form hidden">
+            <input
+              name="name"
+              placeholder="Name / Nickname"
+              required
+              autocomplete="off"
+            />
+            <input
+              name="pronouns"
+              placeholder="Pronouns"
+              autocomplete="off"
+            />
+            <textarea
+              name="condition"
+              rows="3"
+              placeholder="Describe your physical and emotional condition in a few sentences."
+            ></textarea>
+            <textarea
+              name="workload"
+              rows="2"
+              placeholder="How much do you need to work to sustain yourself?"
+            ></textarea>
+            <textarea
+              name="caretaking"
+              rows="2"
+              placeholder="Do you take care of someone or someplace?"
+            ></textarea>
+            <textarea
+              name="skills"
+              rows="3"
+              placeholder="Describe a few skills and knowledge you are bringing to pocas."
+            ></textarea>
+            <div class="participant-form-actions">
+              <button type="submit" class="btn">Save Participant</button>
+              <button type="button" id="participantCancelBtn" class="btn ghost">Cancel</button>
+            </div>
+          </form>
+
+          <div id="participantStatus" class="note"></div>
+        </div>
+
+        <div id="participantsList" class="participants-list note">No participants yet.</div>
+      </section>
+
+      <section class="panel">
+        <div class="protocolitos-header">
+          <h2>Protocolitos</h2>
+          <div class="protocolitos-actions">
+            <button id="addProtocolito" class="btn">Add Protocolito</button>
+            <button id="advancePhaseBtn" class="btn ghost">Advance to next phase</button>
+          </div>
+        </div>
+        <p class="note">
+          Protocolitos are tiny voluntary agreements for coordination. Use them to describe how you
+          will run your pocas in this speculative phase.
+        </p>
+
+        <div id="protocolitoControls" class="participant-controls hidden">
+          <form id="protocolitoForm" class="protocolito-form">
+            <label class="input-label" for="protocolitoParticipants">Participants involved</label>
+            <div id="protocolitoParticipants" class="participant-chip-grid"></div>
+            <textarea
+              name="protocolitoText"
+              rows="5"
+              placeholder="Write your protocolito here..."
+              required
+            ></textarea>
+            <div class="participant-form-actions">
+              <button type="submit" class="btn">Save Protocolito</button>
+              <button type="button" id="protocolitoCancelBtn" class="btn ghost">Cancel</button>
+            </div>
+          </form>
+          <div id="protocolitoStatus" class="note"></div>
+        </div>
+
+        <div id="protocolitosList" class="participants-list note">No protocolitos yet.</div>
+        <div id="protocolitoResults" class="protocolito-results hidden">
+          <h3>Phase Evaluation</h3>
+          <div id="protocolitoSummary"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/main.js" type="module"></script>
+  </body>
+</html>
+

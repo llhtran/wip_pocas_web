@@ -1,0 +1,28 @@
+Refine scenario prompt with the levels. Less specific but giving broad strokes.
+
+Check the players generation system
+
+Fleshout the cycles and timeline system with its appropriate UI
+
+Change First Generate Setting to a "Start Game" button.
+
+When clicking Start Game we get
+
+Simplify character creation
+
+Consider costs into the protocolitos
+
+
+Consider what pocas systems to present for each Phase:
+
+Spaces of exchange
+
+Support fronts
+
+Primary providers
+
+Exchange with other pocas
+
+MUCHAS
+
+FoCos

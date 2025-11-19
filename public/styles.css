@@ -1,0 +1,403 @@
+:root {
+  --bg: #03060c;
+  --panel: #10131d;
+  --panel-border: #1e2335;
+  --text: #f2f5ff;
+  --muted: #9aa1c5;
+  --accent: #47f7c2;
+  --accent-dark: #19b38a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.timeline-shell {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  background: rgba(3, 6, 12, 0.9);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1rem;
+}
+
+.timeline-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.timeline-title {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+
+.timeline-bar {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.timeline-phase {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.timeline-phase.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(71, 247, 194, 0.12);
+}
+
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+h1,
+h2 {
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1.6rem;
+  font-size: 1.05rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
+}
+
+header.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.note {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+select.panel {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  min-width: 160px;
+  background: rgba(255, 255, 255, 0.02);
+  color: #ffffff;
+}
+
+.btn {
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):hover {
+  background: var(--accent);
+  color: var(--bg);
+  transform: translateY(-2px);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn.ghost:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.btn.danger {
+  border-color: #ff7676;
+  color: #ff7676;
+}
+
+.btn.danger:hover {
+  background: rgba(255, 118, 118, 0.15);
+  color: #ffb1b1;
+}
+
+.btn.sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.story {
+  white-space: pre-line;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.story-body {
+  min-height: 180px;
+}
+
+.participants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.participants-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.participant-controls {
+  margin-top: 1rem;
+  border: 1px dashed var(--panel-border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.participant-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.participant-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.participant-form input,
+.participant-form textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.65rem 0.8rem;
+  font-size: 1rem;
+  color: var(--text);
+  resize: vertical;
+}
+
+.participant-form ::placeholder {
+  color: var(--muted);
+}
+
+.participant-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.participants-list {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.protocolitos-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.protocolitos-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.participant-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.participant-chip {
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text);
+}
+
+.participant-chip.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.input-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.protocolito-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.protocolito-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+
+.protocolito-card p {
+  margin: 0.35rem 0;
+  color: var(--text);
+}
+
+.protocolito-card small {
+  display: block;
+  color: var(--muted);
+  margin-top: 0.6rem;
+}
+
+.protocolito-eval {
+  margin: 0.5rem 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.protocolito-results {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--panel-border);
+  padding-top: 1rem;
+}
+
+.protocolito-results h3 {
+  margin: 0 0 0.7rem;
+}
+
+.protocolito-results .result-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.participant-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.participant-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.1rem;
+}
+
+.participant-card .badge {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.participant-card p {
+  margin: 0.4rem 0;
+  color: var(--text);
+}
+
+.participant-card small {
+  display: block;
+  color: var(--muted);
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 600px) {
+  .shell {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  select.panel {
+    width: 100%;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .participant-form-actions {
+    flex-direction: column;
+  }
+
+  .timeline-shell {
+    position: static;
+  }
+}
+
