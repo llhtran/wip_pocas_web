@@ -38,8 +38,9 @@ export MAX_SCENARIO_CHARS=1400
 │   ├── lmClient.js   # LM Studio fetch wrapper
 │   └── promptLoader.js
 ├── prompts/
-│   ├── participants/ # system + user prompts for participant creation
-│   └── protocolitos/ # prompts for per-protocolito eval + phase summary
+│   ├── participants/   # system + user prompts for participant creation
+│   ├── protocolitos/   # prompts for per-protocolito eval + phase summary
+│   └── capabilities/   # mutualist needs coverage assessment prompts
 └── data/
     ├── game-state.json
     ├── world-history.jsonl
@@ -105,6 +106,7 @@ All prompts are plain markdown under `prompts/`. Highlights:
 - `prompts/participants/*` – generate grounded participants (combined condition field).
 - `prompts/protocolitos/eval-*` – per-protocolito micro-evaluation.
 - `prompts/protocolitos/summary-*` – synthesize overall phase results.
+- `prompts/capabilities/*` – assess how collective products/services cover basic needs and how far the group lives between capitalist reliance and mutualist provisioning.
 
 Each prompt enforces natural-language formatting (no JSON), and the server parses the structured sections by regex. This avoids large context windows and repeated “invalid JSON” failures.
 
