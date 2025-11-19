@@ -17,6 +17,7 @@ const protocolitoForm = document.getElementById('protocolitoForm');
 const protocolitoParticipantsEl = document.getElementById('protocolitoParticipants');
 const protocolitoStatusEl = document.getElementById('protocolitoStatus');
 const protocolitoCancelBtn = document.getElementById('protocolitoCancelBtn');
+const protocolitoHelpBtn = document.getElementById('protocolitoHelpBtn');
 const protocolitosListEl = document.getElementById('protocolitosList');
 const advancePhaseBtn = document.getElementById('advancePhaseBtn');
 const protocolitoResultsEl = document.getElementById('protocolitoResults');
@@ -197,6 +198,26 @@ function renderParticipantChips() {
       renderParticipantChips();
     });
   });
+}
+
+function selectedParticipantDetails(limit = 6) {
+  if (!selectedProtocolParticipantIds.length) return [];
+  const idSet = new Set(selectedProtocolParticipantIds);
+  return participants
+    .filter((entry) => idSet.has(entry.id))
+    .slice(0, limit)
+    .map((entry) => {
+      const person = entry.participant || {};
+      return {
+        id: entry.id,
+        name: person.name || '',
+        pronouns: person.pronouns || '',
+        condition: person.condition || '',
+        workload: person.workload || '',
+        caretaking: person.caretaking || '',
+        skills: person.skills || ''
+      };
+    });
 }
 
 function renderProtocolitos() {
@@ -586,6 +607,62 @@ async function submitProtocolito(event) {
   }
 }
 
+async function requestProtocolitoHelp() {
+  const scenario = currentScenarioText();
+  if (!scenario || scenario === scenarioPlaceholder) {
+    setProtocolitoStatus('Generate a scenario before requesting help.');
+    return;
+  }
+
+  if (!selectedProtocolParticipantIds.length) {
+    setProtocolitoStatus('Select participants to ground the helper request.');
+    return;
+  }
+
+  const characters = selectedParticipantDetails(8);
+  if (!characters.length) {
+    setProtocolitoStatus('Could not load the selected participants. Refresh and try again.');
+    return;
+  }
+
+  if (protocolitoHelpBtn) {
+    protocolitoHelpBtn.disabled = true;
+  }
+  setProtocolitoStatus('Asking the local AI to draft a protocolito…');
+
+  try {
+    const response = await fetch('/api/protocolito/help', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scenario, characters })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(errText || 'Failed to request helper draft.');
+    }
+
+    const payload = await response.json();
+    const suggestion = (payload.suggestion || '').trim();
+    if (!suggestion) {
+      throw new Error('Helper did not return a draft.');
+    }
+
+    if (protocolitoForm?.protocolitoText) {
+      protocolitoForm.protocolitoText.value = suggestion;
+      protocolitoForm.protocolitoText.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    setProtocolitoStatus('Draft added. Edit or save when ready.');
+  } catch (error) {
+    console.error(error);
+    setProtocolitoStatus(error.message || 'Failed to request helper draft.');
+  } finally {
+    if (protocolitoHelpBtn) {
+      protocolitoHelpBtn.disabled = false;
+    }
+  }
+}
+
 async function advancePhase() {
   advancePhaseBtn.disabled = true;
   setProtocolitoStatus('Evaluating protocolitos…');
@@ -644,6 +721,9 @@ addProtocolitoBtn.addEventListener('click', () => {
 });
 protocolitoCancelBtn.addEventListener('click', () => toggleProtocolitoControls(false));
 protocolitoForm.addEventListener('submit', submitProtocolito);
+if (protocolitoHelpBtn) {
+  protocolitoHelpBtn.addEventListener('click', requestProtocolitoHelp);
+}
 advancePhaseBtn.addEventListener('click', advancePhase);
 if (clearParticipantsBtn) {
   clearParticipantsBtn.addEventListener('click', async () => {

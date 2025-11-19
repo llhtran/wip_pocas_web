@@ -241,6 +241,28 @@ function buildParticipantDetails(participantIds, participantMap) {
     .join('\\n');
 }
 
+function buildCharacterContextBlock(characters) {
+  if (!Array.isArray(characters) || !characters.length) {
+    return '- None selected.';
+  }
+
+  return characters
+    .map((entry, index) => {
+      const label = entry.name || `Participant ${index + 1}`;
+      const details = [
+        entry.pronouns ? `pronouns: ${entry.pronouns}` : '',
+        entry.condition ? `condition: ${entry.condition}` : '',
+        entry.skills ? `skills: ${entry.skills}` : '',
+        entry.workload ? `workload: ${entry.workload}` : '',
+        entry.caretaking ? `caretaking: ${entry.caretaking}` : ''
+      ]
+        .filter(Boolean)
+        .join(' | ');
+      return details ? `- ${label} | ${details}` : `- ${label}`;
+    })
+    .join('\\n');
+}
+
 function buildEvaluationsBlock(results) {
   return results
     .map(
@@ -761,6 +783,74 @@ async function handleParticipantsDelete(res) {
   }
 }
 
+async function handleProtocolitoHelp(req, res) {
+  const body = await readRequestBody(req);
+  let payload = {};
+
+  if (body) {
+    try {
+      payload = JSON.parse(body);
+    } catch (err) {
+      return sendJSON(res, 400, { error: 'Invalid JSON payload.' });
+    }
+  }
+
+  const scenario = sanitizeField(payload.scenario);
+  if (!scenario) {
+    return sendJSON(res, 400, { error: 'Scenario snapshot is required.' });
+  }
+
+  const normalizeLine = (value) => sanitizeField(value).replace(/\s+/g, ' ').trim();
+  const rawCharacters = Array.isArray(payload.characters) ? payload.characters : [];
+  const limitedCharacters = rawCharacters.slice(0, 8).map((entry, index) => {
+    const baseName = entry?.name || entry?.participant?.name || entry?.id || '';
+    return {
+      name: normalizeLine(baseName) || `Participant ${index + 1}`,
+      pronouns: normalizeLine(entry?.pronouns || entry?.participant?.pronouns || ''),
+      condition: normalizeLine(entry?.condition || entry?.participant?.condition || ''),
+      workload: normalizeLine(entry?.workload || entry?.participant?.workload || ''),
+      caretaking: normalizeLine(entry?.caretaking || entry?.participant?.caretaking || ''),
+      skills: normalizeLine(entry?.skills || entry?.participant?.skills || '')
+    };
+  });
+
+  try {
+    const [systemPrompt, userTemplate] = await Promise.all([
+      loader.load('protocolitos/help-system.md'),
+      loader.load('protocolitos/help-user.md')
+    ]);
+
+    const currentPhase =
+      TIMELINE[gameState.phaseIndex] || TIMELINE[TIMELINE.length - 1];
+
+    const userPrompt = renderTemplate(userTemplate, {
+      scenario,
+      charactersBlock: buildCharacterContextBlock(limitedCharacters),
+      currentPhase: `${currentPhase.label} (${currentPhase.duration})`,
+      timelineSummary: TIMELINE_SUMMARY
+    });
+
+    const response = await lmClient.generate({
+      system: systemPrompt,
+      user: userPrompt
+    });
+
+    const suggestion = cleanModelText(response.draft || '');
+    if (!suggestion) {
+      throw new Error('Helper response was empty.');
+    }
+
+    return sendJSON(res, 200, {
+      suggestion,
+      usage: response.usage || null,
+      model: response.model || null
+    });
+  } catch (error) {
+    console.error('Failed to generate protocolito help', error);
+    return sendJSON(res, 500, { error: 'Failed to generate helper draft.' });
+  }
+}
+
 async function handleProtocolitoPost(req, res) {
   const body = await readRequestBody(req);
   let payload = {};
@@ -896,6 +986,10 @@ async function requestHandler(req, res) {
 
   if (req.method === 'DELETE' && pathname === '/api/participants') {
     return handleParticipantsDelete(res);
+  }
+
+  if (req.method === 'POST' && pathname === '/api/protocolito/help') {
+    return handleProtocolitoHelp(req, res);
   }
 
   if (req.method === 'POST' && pathname === '/api/protocolito') {
