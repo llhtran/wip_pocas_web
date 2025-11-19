@@ -350,6 +350,13 @@ select.panel {
   background: rgba(255, 255, 255, 0.02);
 }
 
+.participant-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 .participant-card h3 {
   margin: 0 0 0.3rem;
   font-size: 1.1rem;
@@ -362,15 +369,55 @@ select.panel {
   color: var(--accent);
 }
 
-.participant-card p {
-  margin: 0.4rem 0;
+.participant-summary {
+  margin: 0.5rem 0 0.3rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--panel-border);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+
+.skills-list {
+  margin: 0;
+  padding-left: 1.2rem;
   color: var(--text);
 }
 
-.participant-card small {
+.skills-list li {
+  margin: 0.15rem 0;
+}
+
+.participant-details {
+  margin-top: 0.5rem;
+}
+
+.participant-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.participant-details[open] summary {
+  margin-bottom: 0.6rem;
+}
+
+.participant-details p {
+  margin: 0.3rem 0;
+  color: var(--text);
+}
+
+.participant-details small {
   display: block;
   color: var(--muted);
-  margin-top: 0.8rem;
+  margin-top: 0.6rem;
 }
 
 @media (max-width: 600px) {

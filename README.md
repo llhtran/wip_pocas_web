@@ -61,7 +61,7 @@ JSONL files append one JSON object per line for easy log-style review.
 
 1. **Timeline** — Five phases representing 1 month, 5 months, 1.5 years, 3 years, 5 years (total ~10 years). A sticky header shows progress.
 2. **Scenario Generation** — The frontend calls `POST /api/setting`. The server rolls the four axes (Government/Environment/Social/Capital) via `src/axes.js`, loads markdown prompts, and asks LM Studio for a seeded setting short enough to fit `MAX_SCENARIO_CHARS`.
-3. **Participant Creation** — Players either fill in the form or click “Generate a character,” hitting `POST /api/participant` with `mode: manual|generate`. Each participant is stored with condition/workload/caretaking info for later capacity checks.
+3. **Participant Creation** — Players either fill in the form or click “Generate a character,” hitting `POST /api/participant` with `mode: manual|generate`. Each participant is stored with condition/care-load/skills info for later capacity checks.
 4. **Protocolitos** — Facilitators create small voluntary agreements by selecting any subset of participants and describing the protocol. Each record goes to `POST /api/protocolito` and is stored for the current phase.
 5. **Advance Phase** — When ready, “Advance to next phase” triggers:
    - For every pending protocolito, the server calls LM Studio with prompts in `prompts/protocolitos/eval-*`. Each micro-call only knows about that protocolito, its participants, the scenario, and the pocos capacity snapshot. Results are parsed into status, verdict, capacity check, outcome, and effects.
@@ -92,7 +92,7 @@ Every endpoint returns JSON (`{ error: '...' }` on failure). Static assets (`pub
 - Scenario card displays the latest LM response with `white-space: pre-line` and a “Generating” state while awaiting the server.
 - Participants panel:
   - “Add Participant” toggles the manual form or allows character generation via LM Studio.
-  - Stored participants show pronouns, condition, workload, caretaking, and skills.
+  - Stored participants show a name box, a skills/knowledge summary, and a collapsible detail view (pronouns, condition, combined work & care load, scenario snippet, timestamp).
 - Protocolitos panel:
   - New agreements require selecting at least one participant and entering text.
   - Each protocolito now shows an inline `<details>`/`<summary>` block containing the evaluation (status, design verdict, capacity, outcome, effects, narrative). Line breaks in LM output are preserved using `formatText()` (HTML-escaped + `<br>` conversion).

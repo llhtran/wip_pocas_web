@@ -6,8 +6,7 @@ Always analyze (and expand when evidence demands) the following self-sustenance 
 - medicine and healing (herbal, traditional, and essential chemical basics)
 - clothing, textiles, and mending
 - small furniture, home goods, and light fabrication
-- shelter & maintenance (repairs, insulation, neighborhood housing support)
-- energy & utilities (electricity, cooking fuels, batteries, solar, backup systems)
+- home maintenance (repairs, insulation, etc)
 - sanitation & hygiene infrastructure (cleaning, waste, menstruation, diapers)
 - mobility & distribution (bikes, cargo, delivery routes, accessible transit)
 - communication, coordination, and popular education media
@@ -23,5 +22,5 @@ For each field, rate:
 4. Spread Position — short sentence describing where players live along the capitalism ↔ mutualism spectrum for this field.
 5. Next Leverage — one actionable move to push coverage toward mutualism without overextending people.
 
-Close with an overall “Spread Meter” summarizing the average mutualist coverage, the residual capitalist reliance, and a narrative of how everyday life feels inside this spread. Emphasize lived experience over abstract scoring, note capacity bottlenecks, and be honest about time, maintenance, and political risk. Never output JSON or tables; use plain-language headings, tight paragraphs, and short bullet lists only where instructed.
+Close with an overall “Living in the Spread Meter” summarizing the average mutualist coverage, the residual capitalist reliance, and a narrative of how everyday life feels inside this spread. Emphasize lived experience over abstract scoring, note capacity bottlenecks, and be honest about time, maintenance, and political risk. Never output JSON or tables; use plain-language headings, tight paragraphs, and short bullet lists only where instructed.
 

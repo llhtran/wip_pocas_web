@@ -47,6 +47,32 @@ function formatText(value = '') {
   return escapeHTML(value).replace(/\n/g, '<br>');
 }
 
+function splitListItems(text = '') {
+  return text
+    .split(/[\n,;/•]+/g)
+    .map((item) => item.replace(/^[-–•\s]+/, '').trim())
+    .filter(Boolean);
+}
+
+function formatSkillsList(value = '') {
+  const items = splitListItems(value);
+  if (!items.length) {
+    return '<p class="note">No skills listed yet.</p>';
+  }
+  return `<ul class="skills-list">${items.map((item) => `<li>${escapeHTML(item)}</li>`).join('')}</ul>`;
+}
+
+function extractCareLoad(person = {}) {
+  const combined =
+    person.careLoad ||
+    [person.workload, person.caretaking]
+      .filter(Boolean)
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+      .join(' ');
+  return combined.trim();
+}
+
 function currentScenarioText() {
   return (draftEl.textContent || '').trim();
 }
@@ -115,46 +141,50 @@ function renderParticipants() {
     .map((entry) => {
       const person = entry.participant || {};
       const badge = entry.mode === 'generated' ? 'Generated' : 'Player';
-      const scenario = entry.scenario || '';
-      const snippet =
-        scenario.length > 180 ? `${scenario.slice(0, 180).trim()}…` : scenario;
+      const name = escapeHTML(person.name) || 'Unnamed participant';
       const conditionText =
         person.condition ||
         [person.physicalCondition, person.emotionalCondition].filter(Boolean).join(' / ') ||
         '';
+      const careLoadText = extractCareLoad(person);
+      const scenario = entry.scenario || '';
+      const scenarioSnippet =
+        scenario.length > 240 ? `${scenario.slice(0, 240).trim()}…` : scenario;
 
       return `
         <article class="participant-card">
-          <div class="badge">${badge}</div>
-          <h3>${escapeHTML(person.name) || 'Unnamed participant'}</h3>
-          ${
-            person.pronouns
-              ? `<p><strong>Pronouns:</strong> ${escapeHTML(person.pronouns)}</p>`
-              : ''
-          }
-          ${
-            conditionText
-              ? `<p><strong>Condition:</strong> ${escapeHTML(conditionText)}</p>`
-              : ''
-          }
-          ${
-            person.workload
-              ? `<p><strong>Workload:</strong> ${escapeHTML(person.workload)}</p>`
-              : ''
-          }
-          ${
-            person.caretaking
-              ? `<p><strong>Caretaking:</strong> ${escapeHTML(person.caretaking)}</p>`
-              : ''
-          }
-          ${
-            person.skills
-              ? `<p><strong>Skills:</strong> ${escapeHTML(person.skills)}</p>`
-              : ''
-          }
-          <small>${new Date(entry.timestamp).toLocaleString()}${
-            snippet ? ` · Scenario: ${escapeHTML(snippet)}` : ''
-          }</small>
+          <div class="participant-head">
+            <h3>${name}</h3>
+            <span class="badge">${badge}</span>
+          </div>
+          <div class="participant-summary">
+            <p class="summary-label">Skills & knowledge</p>
+            ${formatSkillsList(person.skills || '')}
+          </div>
+          <details class="participant-details">
+            <summary>See full responses</summary>
+            ${
+              person.pronouns
+                ? `<p><strong>Pronouns:</strong> ${escapeHTML(person.pronouns)}</p>`
+                : ''
+            }
+            ${
+              conditionText
+                ? `<p><strong>Condition:</strong> ${escapeHTML(conditionText)}</p>`
+                : ''
+            }
+            ${
+              careLoadText
+                ? `<p><strong>Work & care load:</strong> ${escapeHTML(careLoadText)}</p>`
+                : ''
+            }
+            ${
+              scenarioSnippet
+                ? `<p><strong>Scenario ref:</strong> ${escapeHTML(scenarioSnippet)}</p>`
+                : ''
+            }
+            <small>Added ${new Date(entry.timestamp).toLocaleString()}</small>
+          </details>
         </article>
       `;
     })
@@ -215,6 +245,7 @@ function selectedParticipantDetails(limit = 6) {
         condition: person.condition || '',
         workload: person.workload || '',
         caretaking: person.caretaking || '',
+        careLoad: person.careLoad || extractCareLoad(person) || '',
         skills: person.skills || ''
       };
     });
@@ -449,13 +480,15 @@ async function requestSetting() {
 }
 
 function buildParticipantPayload(formData) {
+  const carework = formData.get('carework') || '';
   return {
     name: formData.get('name') || '',
     pronouns: formData.get('pronouns') || '',
     condition: formData.get('condition') || '',
-    workload: formData.get('workload') || '',
-    caretaking: formData.get('caretaking') || '',
-    skills: formData.get('skills') || ''
+    skills: formData.get('skills') || '',
+    workload: carework,
+    caretaking: carework,
+    careLoad: carework
   };
 }
 

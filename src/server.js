@@ -230,11 +230,14 @@ function buildParticipantDetails(participantIds, participantMap) {
     .map((id) => {
       const entry = participantMap[id];
       const person = entry?.participant || {};
+      const careLoad =
+        person.careLoad ||
+        [person.workload, person.caretaking].filter(Boolean).join(' / ') ||
+        'unspecified commitments';
       return [
         `- ${person.name || id} (${person.pronouns || 'unspecified pronouns'})`,
         `  condition: ${person.condition || 'unspecified'}`,
-        `  workload: ${person.workload || 'unknown'}`,
-        `  caretaking: ${person.caretaking || 'unspecified'}`,
+        `  care load: ${careLoad}`,
         `  skills: ${person.skills || 'unspecified'}`
       ].join(' | ');
     })
@@ -249,12 +252,14 @@ function buildCharacterContextBlock(characters) {
   return characters
     .map((entry, index) => {
       const label = entry.name || `Participant ${index + 1}`;
+      const careLoad =
+        entry.careLoad ||
+        [entry.workload, entry.caretaking].filter(Boolean).join(' / ');
       const details = [
         entry.pronouns ? `pronouns: ${entry.pronouns}` : '',
         entry.condition ? `condition: ${entry.condition}` : '',
         entry.skills ? `skills: ${entry.skills}` : '',
-        entry.workload ? `workload: ${entry.workload}` : '',
-        entry.caretaking ? `caretaking: ${entry.caretaking}` : ''
+        careLoad ? `care load: ${careLoad}` : ''
       ]
         .filter(Boolean)
         .join(' | ');
@@ -408,6 +413,12 @@ async function generateParticipantProfile(scenario) {
     skills: sanitizeField(participant.skills)
   };
 
+  normalized.careLoad =
+    sanitizeField(participant.careLoad) ||
+    sanitizeField(participant.obligations) ||
+    sanitizeField(participant.carework) ||
+    sanitizeField([normalized.workload, normalized.caretaking].filter(Boolean).join(' '));
+
   if (!normalized.name) {
     throw new Error('Generated participant is missing a name.');
   }
@@ -419,6 +430,14 @@ async function generateParticipantProfile(scenario) {
 }
 
 function normalizeManualParticipant(input = {}) {
+  const mergedCare =
+    sanitizeField(
+      input.careLoad ||
+        input.carework ||
+        input.obligations ||
+        input.workloadCaretaking ||
+        ''
+    ) || '';
   const participant = {
     name: sanitizeField(input.name || input.nickname),
     pronouns: sanitizeField(input.pronouns),
@@ -426,10 +445,14 @@ function normalizeManualParticipant(input = {}) {
       input.condition ||
         [input.physicalCondition, input.emotionalCondition].filter(Boolean).join(' ')
     ),
-    workload: sanitizeField(input.workload),
-    caretaking: sanitizeField(input.caretaking),
+    workload: sanitizeField(input.workload) || mergedCare,
+    caretaking: sanitizeField(input.caretaking) || mergedCare,
     skills: sanitizeField(input.skills)
   };
+
+  participant.careLoad =
+    mergedCare ||
+    [participant.workload, participant.caretaking].filter(Boolean).join(' ').trim();
 
   if (!participant.name) {
     throw new Error('Name is required.');
@@ -804,12 +827,19 @@ async function handleProtocolitoHelp(req, res) {
   const rawCharacters = Array.isArray(payload.characters) ? payload.characters : [];
   const limitedCharacters = rawCharacters.slice(0, 8).map((entry, index) => {
     const baseName = entry?.name || entry?.participant?.name || entry?.id || '';
+    const careLoadValue =
+      entry?.careLoad ||
+      entry?.participant?.careLoad ||
+      [entry?.workload, entry?.participant?.workload, entry?.caretaking, entry?.participant?.caretaking]
+        .filter(Boolean)
+        .join(' ');
     return {
       name: normalizeLine(baseName) || `Participant ${index + 1}`,
       pronouns: normalizeLine(entry?.pronouns || entry?.participant?.pronouns || ''),
       condition: normalizeLine(entry?.condition || entry?.participant?.condition || ''),
       workload: normalizeLine(entry?.workload || entry?.participant?.workload || ''),
       caretaking: normalizeLine(entry?.caretaking || entry?.participant?.caretaking || ''),
+      careLoad: normalizeLine(careLoadValue),
       skills: normalizeLine(entry?.skills || entry?.participant?.skills || '')
     };
   });
