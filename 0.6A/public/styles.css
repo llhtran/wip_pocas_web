@@ -659,6 +659,15 @@ summary{
   margin: 0 0 0.75rem;
 }
 
+.pocas-section-title--centered {
+  text-align: center;
+}
+
+.pocas-section-title--compact {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  margin-bottom: 0.5rem;
+}
+
 .pocas-band-copy {
   font-size: var(--section-copy-size);
   letter-spacing: 0.04em;
@@ -675,5 +684,139 @@ summary{
 .pocas-protocolitos {
   min-height: 50vh;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.protocolitos-grid {
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+}
+
+.protocolitos-column {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.protocolitos-column-body {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.protocolitos-column-title {
+  font-family: var(--display-font);
+  text-transform: uppercase;
+  letter-spacing: var(--heading-letter-spacing);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  margin: 0 0 0.35rem;
+  text-align: center;
+  background: var(--accent-color);
+  color: var(--bg-color);
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.5rem;
+}
+
+.protocolitos-subheading {
+  font-family: var(--display-font);
+  text-transform: uppercase;
+  letter-spacing: var(--heading-letter-spacing);
+  font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+  margin: 0 0 0.35rem;
+}
+
+.protocolitos-badge-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.protocolito-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  border: 1px solid var(--accent-color);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+}
+
+.protocolito-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.protocolito-form .share-row {
+  justify-content: flex-start;
+}
+
+.protocolito-list {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.protocolito-entry {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.protocolito-entry summary {
+  cursor: pointer;
+  text-transform: none;
+  font-family: var(--display-font);
+  letter-spacing: 0.05em;
+  font-size: 1rem;
+}
+
+.protocolito-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.protocolito-title {
+  flex: 1;
+}
+
+.protocolito-action {
+  border: 1px solid var(--accent-color);
+  background: transparent;
+  color: var(--accent-color);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-family: var(--display-font);
+  font-size: 0.75rem;
+  letter-spacing: var(--heading-letter-spacing);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.protocolito-action:hover,
+.protocolito-action:focus-visible {
+  background-color: var(--accent-color);
+  color: var(--bg-color);
+}
+
+.protocolito-entry-body {
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .protocolitos-grid {
+    grid-template-columns: 1fr;
+  }
 }
 

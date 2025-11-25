@@ -175,10 +175,122 @@
 
       <section class="pocas-band pocas-protocolitos" aria-labelledby="protocolitosTitle">
         <div class="pocas-band-inner">
-          <p id="protocolitosTitle" class="pocas-section-title">Protocolitos</p>
-          <p class="pocas-band-copy">
-            Use this workspace to enumerate and edit your protocolitos, noting the agreements, rituals, and fail-safes that will guide your pocas.
+          <p
+            id="protocolitosTitle"
+            class="pocas-section-title pocas-section-title--centered pocas-section-title--compact"
+          >
+            Our protocolitos
           </p>
+          <div class="protocolitos-grid">
+            <div class="protocolitos-column protocolitos-column-primary">
+              <p class="protocolitos-column-title">Add or continue protocolitos</p>
+              <div class="protocolitos-column-body">
+                <div class="protocolitos-participants">
+                  <p class="protocolitos-subheading">Participants</p>
+                  <ul class="protocolitos-badge-list">
+                    <li><span class="protocolito-badge">Rok</span></li>
+                    <li><span class="protocolito-badge">Lien</span></li>
+                    <li><span class="protocolito-badge">Pablo</span></li>
+                    <li><span class="protocolito-badge">Laura</span></li>
+                  </ul>
+                </div>
+                <form class="protocolito-form">
+                  <label class="field">
+                    <span>Project or activity</span>
+                    <input type="text" name="protocolitoProject" placeholder="Project or activity" />
+                  </label>
+                  <label class="field">
+                    <span>Protocolito draft</span>
+                    <textarea
+                      name="protocolitoDraft"
+                      rows="6"
+                      placeholder="Write your self-organization protocolito."
+                    ></textarea>
+                  </label>
+                  <div class="share-row">
+                    <button type="button" class="cta tertiary">Save protocolito</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="protocolitos-column protocolitos-column-secondary">
+              <p class="protocolitos-column-title">Existing protocolitos</p>
+              <div class="protocolitos-column-body">
+                <div class="protocolito-list">
+                  <p class="protocolitos-subheading">Previous protocolitos</p>
+                  <details class="protocolito-entry" open>
+                    <summary>
+                      <div class="protocolito-summary">
+                        <span class="protocolito-title">Mutual aid pantry stocking schedule</span>
+                        <button type="button" class="protocolito-action">＋</button>
+                      </div>
+                    </summary>
+                    <p class="protocolito-entry-body">
+                      Every Sunday, two volunteers inventory the pantry, publish shortages, and coordinate restocking before Tuesday evening.
+                    </p>
+                  </details>
+                  <details class="protocolito-entry">
+                    <summary>
+                      <div class="protocolito-summary">
+                        <span class="protocolito-title">Night watch rotation</span>
+                        <button type="button" class="protocolito-action">＋</button>
+                      </div>
+                    </summary>
+                    <p class="protocolito-entry-body">
+                      Assign pairs for three-hour shifts, overlap by fifteen minutes for hand-offs, and log incidents in the shared ledger.
+                    </p>
+                  </details>
+                  <details class="protocolito-entry">
+                    <summary>
+                      <div class="protocolito-summary">
+                        <span class="protocolito-title">Conflict mediation triads</span>
+                        <button type="button" class="protocolito-action">＋</button>
+                      </div>
+                    </summary>
+                    <p class="protocolito-entry-body">
+                      Randomly select a facilitator trio monthly; any dispute pauses operations until the triad meets with both parties in person.
+                    </p>
+                  </details>
+                </div>
+                <div class="protocolito-list">
+                  <p class="protocolitos-subheading">New protocolitos</p>
+                  <details class="protocolito-entry">
+                    <summary>
+                      <div class="protocolito-summary">
+                        <span class="protocolito-title">Shared childcare swap board</span>
+                        <button type="button" class="protocolito-action">＋</button>
+                      </div>
+                    </summary>
+                    <p class="protocolito-entry-body">
+                      Pilot a weekly roster where caregivers log available hours and needs; confirmations happen in-app to avoid double bookings.
+                    </p>
+                  </details>
+                  <details class="protocolito-entry">
+                    <summary>
+                      <div class="protocolito-summary">
+                        <span class="protocolito-title">Tool library maintenance cadence</span>
+                        <button type="button" class="protocolito-action">＋</button>
+                      </div>
+                    </summary>
+                    <p class="protocolito-entry-body">
+                      Assign three roles—inspector, fixer, messenger—for each fortnight. Publish photos of issues before requesting spares.
+                    </p>
+                  </details>
+                  <details class="protocolito-entry">
+                    <summary>
+                      <div class="protocolito-summary">
+                        <span class="protocolito-title">Emergency cash pool triggers</span>
+                        <button type="button" class="protocolito-action">＋</button>
+                      </div>
+                    </summary>
+                    <p class="protocolito-entry-body">
+                      Define a checklist (medical, eviction, state repression) that auto-approves micro-grants once two coordinators co-sign.
+                    </p>
+                  </details>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </section>
