@@ -609,7 +609,7 @@ summary{
   width: 100%;
   max-width: 1200px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(6rem, auto);
+  grid-template-columns: 1fr 3fr 1fr;
   gap: clamp(0.75rem, 2vw, 1.5rem);
 }
 
@@ -625,6 +625,11 @@ summary{
 
 .pocas-help-cell {
   align-items: center;
+  border: none;
+  background: transparent;
+}
+
+.pocas-timer-cell {
   border: none;
   background: transparent;
 }
