@@ -23,6 +23,7 @@ const intentionsInput = document.getElementById('participantIntentions');
 const toggleIntentionsBtn = document.getElementById('toggleIntentionsBtn');
 const startPocasContainer = document.getElementById('startPocasContainer');
 const startPocasBtn = document.getElementById('startPocasBtn');
+const pocasHelpButton = document.getElementById('pocasHelpButton');
 const pocasSection = document.getElementById('pocasSection');
 
 const introSlideshowInstance = new IntroSlideshow({
@@ -464,6 +465,16 @@ if (startPocasBtn) {
   startPocasBtn.addEventListener('click', () => {
     playButtonSound();
     revealPocasSection();
+  });
+}
+
+if (pocasHelpButton) {
+  pocasHelpButton.addEventListener('click', () => {
+    playButtonSound();
+    const helpWindow = window.open('https://pocas.store', '_blank', 'noopener,noreferrer');
+    if (helpWindow) {
+      helpWindow.opener = null;
+    }
   });
 }
 
