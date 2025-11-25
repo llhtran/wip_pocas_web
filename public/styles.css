@@ -122,6 +122,10 @@ header.panel {
   margin-top: 0.5rem;
 }
 
+.note.danger {
+  color: #ff7c7c;
+}
+
 select.panel {
   padding: 0.4rem 0.6rem;
   border-radius: 8px;
@@ -188,6 +192,159 @@ select.panel {
 
 .story-body {
   min-height: 180px;
+}
+
+.main-grid {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.primary-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.capabilities-panel {
+  flex: 0 0 320px;
+  width: 320px;
+}
+
+.capabilities-sticky {
+  position: sticky;
+  top: 90px;
+  background: rgba(16, 19, 29, 0.94);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.capabilities-summary {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.capabilities-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.capability-item {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.capability-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.capability-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.capability-text {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.status-pill {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.capability-item.status-exceptional .status-pill {
+  border-color: rgba(71, 247, 194, 0.6);
+  color: var(--accent);
+}
+
+.capability-item.status-fair .status-pill {
+  border-color: rgba(147, 197, 253, 0.6);
+  color: #8fc7ff;
+}
+
+.capability-item.status-uncertain .status-pill {
+  border-color: rgba(255, 199, 125, 0.6);
+  color: #ffc77d;
+}
+
+.capability-item.status-insufficient .status-pill {
+  border-color: rgba(255, 150, 146, 0.6);
+  color: #ff968f;
+}
+
+.spread-widget {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.spread-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.spread-header strong {
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.spread-bar {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.spread-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff9a8b 0%, #fbd786 50%, #47f7c2 100%);
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+.spread-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
 }
 
 .participants-header {
@@ -267,6 +424,160 @@ select.panel {
   gap: 0.6rem;
 }
 
+.protocolito-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1rem;
+}
+
+.protocolito-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.protocolito-form-column,
+.protocolito-library-column {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.protocolito-version-notice {
+  margin: -0.2rem 0 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.protocolito-version-history {
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.4rem 0.9rem 0.6rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.protocolito-version-history.hidden {
+  display: none;
+}
+
+.protocolito-version-history summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 -0.3rem 0.3rem;
+  list-style: none;
+}
+
+.protocolito-version-history summary::-webkit-details-marker {
+  display: none;
+}
+
+.protocolito-history-list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.protocolito-history-list li {
+  margin: 0.2rem 0;
+}
+
+.protocolito-history-list span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.protocolito-library-section {
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.protocolito-library-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.protocolito-library-head h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.protocolito-library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+.protocolito-library-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.7rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.protocolito-library-card.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(71, 247, 194, 0.4);
+}
+
+.protocolito-library-card h5 {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+}
+
+.protocolito-library-card p {
+  margin: 0.15rem 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.protocolito-library-card details {
+  margin-top: 0.4rem;
+}
+
+.protocolito-library-card summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  list-style: none;
+}
+
+.protocolito-library-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.protocolito-library-card .btn {
+  margin-top: 0.6rem;
+  width: 100%;
+}
+
+.protocolito-version-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  margin-left: 0.4rem;
+  color: var(--muted);
+}
+
 .participant-chip-grid {
   display: flex;
   flex-wrap: wrap;
@@ -303,9 +614,23 @@ select.panel {
   background: rgba(255, 255, 255, 0.02);
 }
 
-.protocolito-card h3 {
+.protocolito-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.protocolito-card h3,
+.protocolito-card-head h4 {
   margin: 0 0 0.3rem;
   font-size: 1rem;
+}
+
+.protocolito-participants {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .protocolito-card p {
@@ -319,10 +644,103 @@ select.panel {
   margin-top: 0.6rem;
 }
 
-.protocolito-eval {
-  margin: 0.5rem 0;
+.protocolito-status {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
   color: var(--muted);
+}
+
+.protocolito-status-exceptional {
+  border-color: rgba(71, 247, 194, 0.5);
+  color: var(--accent);
+}
+
+.protocolito-status-fair {
+  border-color: rgba(147, 197, 253, 0.45);
+  color: #8fc7ff;
+}
+
+.protocolito-status-uncertain {
+  border-color: rgba(255, 199, 125, 0.5);
+  color: #ffc77d;
+}
+
+.protocolito-status-insufficient {
+  border-color: rgba(255, 150, 146, 0.5);
+  color: #ff968f;
+}
+
+.protocolito-implementation {
+  margin-top: 0.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.45rem 0.9rem 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.protocolito-implementation summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  margin: 0 -0.3rem 0.4rem;
+  list-style: none;
+}
+
+.protocolito-implementation summary::-webkit-details-marker {
+  display: none;
+}
+
+.protocolito-implementation[open] summary {
+  margin-bottom: 0.65rem;
+}
+
+.protocolito-implementation p {
+  margin: 0.3rem 0;
+  color: var(--text);
   font-size: 0.95rem;
+}
+
+.protocolito-original {
+  margin-top: 0.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.4rem 0.9rem 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.protocolito-original summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 -0.3rem 0.3rem;
+  list-style: none;
+}
+
+.protocolito-original summary::-webkit-details-marker {
+  display: none;
+}
+
+.protocolito-original p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.protocolito-effects ul,
+.protocolito-production ul {
+  margin: 0.3rem 0 0.2rem 1.2rem;
+  padding: 0;
+  color: var(--text);
+  font-size: 0.92rem;
 }
 
 .protocolito-results {
@@ -333,6 +751,41 @@ select.panel {
 
 .protocolito-results h3 {
   margin: 0 0 0.7rem;
+}
+
+.phase-brief {
+  margin: 0 0 0.8rem;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.phase-results-details {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.6rem 1rem 1rem;
+}
+
+.phase-results-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  margin: 0 -0.4rem 0.5rem;
+  list-style: none;
+}
+
+.phase-results-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.phase-results-details-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .protocolito-results .result-card {
@@ -369,55 +822,101 @@ select.panel {
   color: var(--accent);
 }
 
-.participant-summary {
-  margin: 0.5rem 0 0.3rem;
-  padding: 0.6rem 0;
-  border-top: 1px solid var(--panel-border);
-  border-bottom: 1px solid var(--panel-border);
+.participant-card .badge.warning {
+  color: #ffbf6b;
 }
 
-.summary-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+.participant-card .badge.danger {
+  color: #ff7c7c;
+}
+
+.participant-chip.resting {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.participant-chip .chip-note {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.75rem;
   color: var(--muted);
-  margin: 0 0 0.4rem;
+}
+
+.protocolito-support {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .skills-list {
   margin: 0;
   padding-left: 1.2rem;
   color: var(--text);
+  font-size: 0.95rem;
 }
 
 .skills-list li {
   margin: 0.15rem 0;
 }
 
-.participant-details {
-  margin-top: 0.5rem;
+.participant-pronouns {
+  margin: 0.4rem 0 0.6rem;
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
-.participant-details summary {
+.participant-section {
+  margin-top: 0.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.4rem 0.9rem 0.9rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.participant-section summary {
   cursor: pointer;
   color: var(--accent);
   font-weight: 600;
-  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  margin: 0 -0.3rem 0.5rem;
+  list-style: none;
 }
 
-.participant-details[open] summary {
-  margin-bottom: 0.6rem;
+.participant-section summary::-webkit-details-marker {
+  display: none;
 }
 
-.participant-details p {
+.participant-section[open] summary {
+  margin-bottom: 0.7rem;
+}
+
+.participant-section p {
   margin: 0.3rem 0;
   color: var(--text);
+  font-size: 0.95rem;
 }
 
-.participant-details small {
+.participant-timestamp {
   display: block;
   color: var(--muted);
-  margin-top: 0.6rem;
+  margin-top: 0.8rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 1100px) {
+  .main-grid {
+    flex-direction: column;
+  }
+
+  .capabilities-panel {
+    width: 100%;
+  }
+
+  .capabilities-sticky {
+    position: static;
+  }
 }
 
 @media (max-width: 600px) {
@@ -441,6 +940,14 @@ select.panel {
 
   .participant-form-actions {
     flex-direction: column;
+  }
+
+  .protocolito-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .protocolito-library-card .btn {
+    width: 100%;
   }
 
   .timeline-shell {

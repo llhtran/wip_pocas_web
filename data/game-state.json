@@ -1,4 +1,60 @@
 {
-  "phaseIndex": 0,
-  "lastEvaluation": null
+  "phaseIndex": 1,
+  "lastEvaluation": {
+    "protocolitos": [
+      {
+        "id": "protocolito_mibouk50_3q2r",
+        "seriesId": "protoSeries_mibouk50_8vn2",
+        "participantIds": [
+          "participant_miboslwv_3hz2",
+          "participant_mibosij6_bawe"
+        ],
+        "supportTargets": [],
+        "participantNames": [
+          "Lupita Garcia",
+          "Frida Hernandez"
+        ],
+        "text": "Lupita and Frida combine fresh medicinal herbs for traditional Aztec remedies that Lupita can sell to tourists. They agree to share their resources, helping each other weather economic storms. Both commit to attending weekly community meetings to discuss mutual aid efforts and address social tensions.\n\nThe protocolitos are:\n- Lupita supplies Frida with fruits and vegetables.\n- Frida gives Lupita traditional Aztec remedies.\n- Regularly attend community meetings for mutual support.",
+        "status": "uncertain",
+        "implementationTitle": "",
+        "implementationSummary": "",
+        "implementationCapacity": "",
+        "implementationResult": "",
+        "version": 1,
+        "title": "",
+        "productionLine": "",
+        "productionQuantity": "",
+        "productionQuality": "",
+        "effects": [],
+        "narrative": "Status: uncertain\nTitle: Lupita and Frida's Mutual Aid Protocol\nSummary: The protocolito aims to have Lupita and Frida help each other by sharing resources and attending community meetings. However, given the limited infrastructure and scarce tools available, it remains unclear if this mutual aid effort will be successful.\nCapacity: Both Lupita and Frida are overcommitted with their existing roles as street vendors and community organizers. They struggle to find time for this new shared venture.\nConflict: The lack of resources and minimal shared infrastructure creates a bottleneck that may impede the success of their agreement to combine fruits, vegetables, and remedies.\nImplementation: Despite their best intentions, Lupita and Frida were unable to fully execute this protocolito due to limited capacity and competing priorities. They made some progress in sharing resources but fell short of attending weekly meetings.\nEffects:\n- Some exchange of fruits, vegetables, and remedies occurred between them\n- Their time constraints prevented consistent coordination and support through community meetings\nProduction: Exchange of traditional Aztec remedies between Lupita and Frida.\nQuantity: A limited number of remedy batches were shared each week based on their harvests and production capacity. \nQuality: The quality of the remedies was high due to Frida's expertise, but the quantity was constrained by their resource limitations and competing commitments.",
+        "initialEvaluation": "",
+        "capacityAssessment": "",
+        "finalOutcome": ""
+      }
+    ],
+    "updatedScenario": "After one month, Lupita and Frida's mutual aid protocolito has made limited progress. They have exchanged a few batches of traditional Aztec remedies based on their harvests and production capacity. However, they were unable to consistently coordinate time for attending community meetings due to competing priorities.",
+    "pocasSummary": "The pocas space in this development stage remains small-scale and struggling with infrastructure limitations. Lupita and Frida's exchange of fruits, vegetables, and remedies represents a basic level of mutual support within their immediate community. The lack of reliable transport, communication, and shared storage has hindered the ability to scale up or attend larger meetings.",
+    "collectiveCapabilities": "Lupita and Frida have demonstrated some ability to coordinate limited exchanges of goods based on their expertise in traditional medicines and local agriculture. However, they are constrained by their existing roles as street vendors and community organizers, which leaves them little extra time for the mutual aid protocolito.",
+    "phaseReflection": "In this initial phase, Lupita and Frida were only able to make modest progress towards establishing a functional pocas space. The main challenges they faced included limited resources, competing priorities, and a lack of reliable infrastructure to support more ambitious coordination efforts. To move forward, they will need to find ways to better align their existing commitments with the goals of the mutual aid protocolito, while also building out basic infrastructures like transport and communication channels.",
+    "narrative": "Updated Scenario:\nAfter one month, Lupita and Frida's mutual aid protocolito has made limited progress. They have exchanged a few batches of traditional Aztec remedies based on their harvests and production capacity. However, they were unable to consistently coordinate time for attending community meetings due to competing priorities.\n\nPocas Summary:\nThe pocas space in this development stage remains small-scale and struggling with infrastructure limitations. Lupita and Frida's exchange of fruits, vegetables, and remedies represents a basic level of mutual support within their immediate community. The lack of reliable transport, communication, and shared storage has hindered the ability to scale up or attend larger meetings.\n\nCollective Capabilities:\nLupita and Frida have demonstrated some ability to coordinate limited exchanges of goods based on their expertise in traditional medicines and local agriculture. However, they are constrained by their existing roles as street vendors and community organizers, which leaves them little extra time for the mutual aid protocolito.\n\nPhase Reflection:\nIn this initial phase, Lupita and Frida were only able to make modest progress towards establishing a functional pocas space. The main challenges they faced included limited resources, competing priorities, and a lack of reliable infrastructure to support more ambitious coordination efforts. To move forward, they will need to find ways to better align their existing commitments with the goals of the mutual aid protocolito, while also building out basic infrastructures like transport and communication channels.",
+    "phaseBrief": "Lupita and Frida made modest progress in establishing their mutual aid protocolito, primarily through exchanging fruits, vegetables, and remedies based on their expertise and harvests. However, they were limited by their existing commitments as street vendors and community organizers, which left them little time for consistent coordination or attending larger meetings, hindering further development of the pocas space.",
+    "developmentStage": "Stage 1 - SETTING UP",
+    "developmentStageHint": "Stage 1 - SETTING UP. Small reach (~10 participants). Focus on trust building, basic infrastructures, and close coordination.",
+    "participantUpdates": [
+      {
+        "participantId": "participant_miboslwv_3hz2",
+        "name": "Lupita Garcia",
+        "statusLine": "Lupita's resilience and resourcefulness help her navigate competing priorities, but her overcommitment leaves little room for this mutual aid protocolito, causing tension between her existing roles and the new venture.",
+        "overextended": false,
+        "burnoutTriggered": false
+      },
+      {
+        "participantId": "participant_mibosij6_bawe",
+        "name": "Frida Hernandez",
+        "statusLine": "Frida's skills in negotiation and resource management are put to the test as she struggles to balance family responsibilities with her commitments to the market stall and mutual aid groups, hindering progress on this shared remedy exchange.",
+        "overextended": false,
+        "burnoutTriggered": false
+      }
+    ]
+  }
 }

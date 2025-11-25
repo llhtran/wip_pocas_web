@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>pocas · 0.6A intro</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="hero">
+      <div class="center-stack">
+        <h1>pocas</h1>
+        <h2>Collective speculations of mutualist conveniences</h2>
+        <div class="hero-actions">
+          <button id="startButton" type="button" class="cta">Start game</button>
+          <label class="difficulty-control">
+            <span>Difficulty</span>
+            <select id="difficultySelect" name="difficulty">
+              <option value="gentle" selected>Gentle</option>
+              <option value="demanding">Demanding</option>
+              <option value="harsh">Harsh</option>
+            </select>
+          </label>
+        </div>
+        <p id="statusLine" class="status" role="status" aria-live="polite"></p>
+      </div>
+    </main>
+
+    <section
+      id="introSlideshow"
+      class="intro-slideshow hidden"
+      aria-live="polite"
+      aria-label="pocas prologue slideshow"
+    >
+      <button id="skipIntroBtn" type="button" class="skip-intro hidden" aria-label="Skip intro">
+        skip →
+      </button>
+      <div class="slide-image-frame">
+        <img id="slideImage" class="slide-image" alt="" role="presentation" />
+      </div>
+      <p id="slideText" class="slide-text is-paused"></p>
+    </section>
+
+    <section id="settingScreen" class="setting-screen hidden" aria-live="polite">
+      <div class="setting-inner">
+        <p id="settingIntro" class="setting-text">You wake up the next morning, excited about the pocas meeting, as you look outside your window:</p>
+        <p id="settingText" class="setting-text">Setting will unfold after the intro.</p>
+        <button id="meetingBtn" type="button" class="cta tertiary">Go to the pocas meeting</button>
+      </div>
+    </section>
+
+    <section id="participantsScreen" class="participants-screen hidden">
+      <div class="participants-inner">
+        <p class="participants-copy">
+          You show up to the local spot and soon you find yourself surrounded by others from your neighbourhood who, just like you, want to start a pocas.
+        </p>
+        <button id="introduceBtn" type="button" class="cta secondary">Introduce yourself</button>
+
+        <form id="introParticipantForm" class="participant-form hidden" autocomplete="off">
+          <div class="field-group field-row">
+            <label class="field field-grow">
+              <span>Name</span>
+              <input
+                type="text"
+                id="participantName"
+                name="name"
+                required
+                placeholder="How do you want to be called?"
+              />
+            </label>
+            <label class="field field-tight">
+              <span>Pronouns</span>
+              <input type="text" id="participantPronouns" name="pronouns" required />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Condition</span>
+            <textarea
+              id="participantCondition"
+              class="text-compact"
+              name="condition"
+              rows="3"
+              maxlength="350"
+              required
+              placeholder="Describe your physical and emotional condition in a few sentences."
+            ></textarea>
+          </label>
+
+          <label class="field">
+            <span>Capacities</span>
+            <div class="capability-input-row">
+              <input
+                type="text"
+                id="capabilityInput"
+                placeholder="List some of the skills, knowledge and tools you could contribute to pocas."
+              />
+              <button type="button" id="addCapabilityBtn" class="capability-add">
+                Add capacity
+              </button>
+            </div>
+            <ul id="capabilityList" class="capability-list" aria-live="polite"></ul>
+          </label>
+
+          <label class="field">
+            <span>Availability</span>
+            <textarea
+              id="participantCapacities"
+              class="text-compact"
+              name="capacities"
+              rows="3"
+              maxlength="350"
+              required
+              placeholder="How does work, caregiving and other commitments shape your availability for pocas?"
+            ></textarea>
+          </label>
+
+          <label class="field">
+            <span>Intentions (optional)</span>
+            <div class="intentions-input-row">
+              <textarea
+                id="participantIntentions"
+                class="text-compact intentions-textarea is-hidden"
+                name="intentions"
+                rows="3"
+                maxlength="350"
+                placeholder="Share some of your personal lore, ambitions, hidden agendas and drives."
+              ></textarea>
+              <button type="button" id="toggleIntentionsBtn" class="capability-add">
+                Show
+              </button>
+            </div>
+          </label>
+
+          <div class="share-row">
+            <button id="shareParticipantBtn" type="button" class="cta tertiary">
+              Share with others
+            </button>
+          </div>
+        </form>
+        <h3 id="participantsHeading" class="participants-heading hidden">Participants</h3>
+        <div id="participantsList" class="participants-list"></div>
+        <div id="startPocasContainer" class="start-pocas hidden">
+          <button id="startPocasBtn" type="button" class="cta">Start your pocas</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="pocasSection" class="pocas-section hidden" aria-live="polite">
+      <header class="pocas-header">
+        <div class="pocas-header-columns">
+          <div class="pocas-header-cell">
+            <p class="pocas-label">Timer</p>
+            <p class="pocas-value">00:00</p>
+          </div>
+          <div class="pocas-header-cell">
+            <p class="pocas-label">Round</p>
+            <p class="pocas-value">01</p>
+          </div>
+          <div class="pocas-header-cell">
+            <p class="pocas-label">Help</p>
+            <p class="pocas-value">Need guidance?</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="pocas-band pocas-dashboard" aria-labelledby="pocasDashboardTitle">
+        <div class="pocas-band-inner">
+          <p id="pocasDashboardTitle" class="pocas-section-title">Our pocas</p>
+          <p class="pocas-band-copy">
+            This dashboard will summarize your shared commitment, current axis readings, and urgent attention areas as they update in real-time.
+          </p>
+        </div>
+      </section>
+
+      <section class="pocas-band pocas-protocolitos" aria-labelledby="protocolitosTitle">
+        <div class="pocas-band-inner">
+          <p id="protocolitosTitle" class="pocas-section-title">Protocolitos</p>
+          <p class="pocas-band-copy">
+            Use this workspace to enumerate and edit your protocolitos, noting the agreements, rituals, and fail-safes that will guide your pocas.
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
+

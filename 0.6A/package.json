@@ -1,0 +1,14 @@
+{
+  "name": "pocaslarp-0-6a",
+  "version": "0.1.0",
+  "private": true,
+  "description": "POCAS LARP 0.6A intro prototype",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}
+

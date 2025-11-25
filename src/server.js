@@ -10,6 +10,7 @@ const PORT = Number(process.env.PORT || 3001);
 const HOST = process.env.HOST || '0.0.0.0';
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
 const PROMPT_DIR = path.resolve(__dirname, '../prompts');
+const DEVELOPMENT_STAGES_FILE = path.join(PROMPT_DIR, 'development-stages/development-stages.md');
 const DATA_DIR = path.resolve(__dirname, '../data');
 const HISTORY_FILE = path.join(DATA_DIR, 'world-history.jsonl');
 const PARTICIPANT_HISTORY_FILE = path.join(DATA_DIR, 'participants-history.jsonl');
@@ -28,6 +29,37 @@ const TIMELINE_SUMMARY = TIMELINE.map((phase) => `${phase.label} (${phase.durati
 
 const loader = new PromptLoader(PROMPT_DIR);
 const lmClient = new LMClient();
+const developmentStagesGuide = fs.existsSync(DEVELOPMENT_STAGES_FILE)
+  ? fs.readFileSync(DEVELOPMENT_STAGES_FILE, 'utf8')
+  : '';
+
+const DEVELOPMENT_STAGE_LEVELS = [
+  {
+    id: 1,
+    label: 'Stage 1 - SETTING UP',
+    summary: 'Small reach (~10 participants). Focus on trust building, basic infrastructures, and close coordination.'
+  },
+  {
+    id: 2,
+    label: 'Stage 2 - LIFTING OFF / PILOT PROJECT',
+    summary: 'Growing reach (~20). Opportunities for a shared space, strengthening bases and communication fronts.'
+  },
+  {
+    id: 3,
+    label: 'Stage 3 - FIRST CHALLENGES OF SCALE',
+    summary: 'Medium reach (~50). Transport, communal computing, and early foco experiments become relevant.'
+  },
+  {
+    id: 4,
+    label: 'Stage 4 - MAKE OR BREAK',
+    summary: 'Large reach (~100). Ensure reliability, scale products/services, potentially spin off a MUCHA.'
+  },
+  {
+    id: 5,
+    label: 'Stage 5 - RIVALLING CAPITALISM',
+    summary: 'Federative reach (200+). Managing networks of POCAS/MUCHAS and complex focos with city-wide logistics.'
+  }
+];
 
 function loadJSON(filePath, fallback) {
   try {
@@ -197,10 +229,14 @@ function parseSingleProtocolitoEvaluation(text, protocolId) {
   const normalizedStatus = statusMatch ? statusMatch[1].toLowerCase() : 'uncertain';
   const allowedStatuses = new Set(['insufficient', 'fair', 'exceptional', 'uncertain']);
   const status = allowedStatuses.has(normalizedStatus) ? normalizedStatus : 'uncertain';
+  const titleMatch = /Title:\\s*([^\\n]+)/i.exec(cleaned);
   const summaryMatch = /Summary:\\s*([^\\n]+)/i.exec(cleaned);
   const capacityMatch = /Capacity:\\s*([^\\n]+)/i.exec(cleaned);
-  const outcomeMatch = /Outcome:\\s*([^\\n]+)/i.exec(cleaned);
-  const effectsSection = /Effects:\\s*([\\s\\S]+)/i.exec(cleaned);
+  const implementationMatch = /Implementation:\\s*([^\\n]+)/i.exec(cleaned);
+  const effectsSection = /Effects:\\s*([\\s\\S]*?)(?:\\n(?:Production:|$))/i.exec(cleaned);
+  const productionMatch = /Production:\\s*([^\\n]+)/i.exec(cleaned);
+  const quantityMatch = /Quantity:\\s*([^\\n]+)/i.exec(cleaned);
+  const qualityMatch = /Quality:\\s*([^\\n]+)/i.exec(cleaned);
 
   const effects = [];
   if (effectsSection) {
@@ -211,18 +247,32 @@ function parseSingleProtocolitoEvaluation(text, protocolId) {
       .forEach((effect) => effects.push(effect));
   }
 
+  const summaryText = summaryMatch?.[1]?.trim() || '';
+  const capacityText = capacityMatch?.[1]?.trim() || '';
+  const implementationText = implementationMatch?.[1]?.trim() || '';
+  const titleText = titleMatch?.[1]?.trim() || '';
+
   return {
     id: protocolId,
     status,
-    initialEvaluation: summaryMatch?.[1]?.trim() || '',
-    capacityAssessment: capacityMatch?.[1]?.trim() || '',
-    finalOutcome: outcomeMatch?.[1]?.trim() || '',
+    implementationTitle: titleText,
+    implementationSummary: summaryText,
+    implementationCapacity: capacityText,
+    implementationResult: implementationText,
+    productionLine: productionMatch?.[1]?.trim() || '',
+    productionQuantity: quantityMatch?.[1]?.trim() || '',
+    productionQuality: qualityMatch?.[1]?.trim() || '',
+    // legacy fields kept for compatibility with existing data
+    title: titleText,
+    initialEvaluation: summaryText,
+    capacityAssessment: capacityText,
+    finalOutcome: implementationText,
     effects,
     narrative: cleaned || ''
   };
 }
 
-function buildParticipantDetails(participantIds, participantMap) {
+function buildParticipantDetails(participantIds, participantMap, workloadMap = {}) {
   if (!participantIds?.length) {
     return '- (no participants listed)';
   }
@@ -234,11 +284,19 @@ function buildParticipantDetails(participantIds, participantMap) {
         person.careLoad ||
         [person.workload, person.caretaking].filter(Boolean).join(' / ') ||
         'unspecified commitments';
+      const simultaneous = workloadMap[id] || 0;
+      const workloadHint =
+        simultaneous > 1
+          ? `${simultaneous} parallel protocolitos`
+          : simultaneous === 1
+          ? 'single protocolito focus'
+          : 'no protocolitos this phase';
       return [
         `- ${person.name || id} (${person.pronouns || 'unspecified pronouns'})`,
         `  condition: ${person.condition || 'unspecified'}`,
         `  care load: ${careLoad}`,
-        `  skills: ${person.skills || 'unspecified'}`
+        `  skills: ${person.skills || 'unspecified'}`,
+        `  active commitments: ${workloadHint}`
       ].join(' | ');
     })
     .join('\\n');
@@ -270,11 +328,539 @@ function buildCharacterContextBlock(characters) {
 
 function buildEvaluationsBlock(results) {
   return results
-    .map(
-      (result) =>
-        `- Protocolito ${result.id} (${result.status}): ${result.initialEvaluation || result.narrative}`
-    )
+    .map((result) => {
+      const summary =
+        result.implementationSummary || result.initialEvaluation || result.narrative || '';
+      return `- Protocolito ${result.id} (${result.status}): ${summary}`;
+    })
     .join('\\n');
+}
+
+function describeParticipantCapacities(person = {}) {
+  return (
+    sanitizeField(person.careLoad) ||
+    sanitizeField(
+      [person.workload, person.caretaking]
+        .filter(Boolean)
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .join(' / ')
+    ) ||
+    'No availability data recorded.'
+  );
+}
+
+const CAPACITY_LEVELS = new Set(['normal', 'low', 'resting']);
+
+function normalizeCapacityLevel(level) {
+  if (typeof level !== 'string') {
+    return 'normal';
+  }
+  const normalized = level.toLowerCase();
+  return CAPACITY_LEVELS.has(normalized) ? normalized : 'normal';
+}
+
+function isParticipantResting(participant = {}, phaseIndex = 0) {
+  const restingUntil =
+    typeof participant.restingUntilPhase === 'number' ? participant.restingUntilPhase : null;
+  if (restingUntil === null) {
+    return false;
+  }
+  return phaseIndex <= restingUntil;
+}
+
+function updateBurnoutState(participantData = {}, { contributionsCount = 0, supportReceived = false, phaseIndex = 0 }) {
+  const state = {
+    capacityLevel: normalizeCapacityLevel(participantData.capacityLevel),
+    restingUntilPhase:
+      typeof participantData.restingUntilPhase === 'number'
+        ? participantData.restingUntilPhase
+        : null,
+    overextensionStreak:
+      typeof participantData.overextensionStreak === 'number'
+        ? participantData.overextensionStreak
+        : 0
+  };
+
+  let effectiveCapacity = state.capacityLevel;
+
+  if (state.restingUntilPhase !== null) {
+    if (phaseIndex <= state.restingUntilPhase) {
+      effectiveCapacity = 'resting';
+    } else {
+      state.restingUntilPhase = null;
+      effectiveCapacity = supportReceived ? 'normal' : 'low';
+    }
+  }
+
+  const allowedProtocolitos =
+    effectiveCapacity === 'low' || effectiveCapacity === 'resting' ? 0 : 1;
+  const overextended = contributionsCount > allowedProtocolitos;
+
+  state.overextensionStreak = overextended ? state.overextensionStreak + 1 : 0;
+
+  let burnoutTriggered = false;
+  if (state.overextensionStreak >= 2) {
+    burnoutTriggered = true;
+    state.restingUntilPhase = Math.min(phaseIndex + 1, TIMELINE.length - 1);
+    effectiveCapacity = 'resting';
+    state.overextensionStreak = 0;
+  }
+
+  if (!burnoutTriggered && effectiveCapacity === 'low' && !overextended && !supportReceived) {
+    effectiveCapacity = 'normal';
+  }
+
+  participantData.capacityLevel = effectiveCapacity;
+  participantData.restingUntilPhase = state.restingUntilPhase;
+  participantData.overextensionStreak = state.overextensionStreak;
+  participantData.lastOverextendedPhase = overextended
+    ? phaseIndex
+    : participantData.lastOverextendedPhase || null;
+
+  return {
+    overextended,
+    burnoutTriggered,
+    supportReceived,
+    capacityLevel: effectiveCapacity
+  };
+}
+
+function buildParticipantImpactSummaries(protocolitos, resultsMap, participantMap, supportMap = {}) {
+  if (!participantMap || typeof participantMap !== 'object') {
+    return [];
+  }
+
+  const impactMap = {};
+
+  if (Array.isArray(protocolitos)) {
+    protocolitos.forEach((protocolito) => {
+      if (!Array.isArray(protocolito.participantIds) || !protocolito.participantIds.length) {
+        return;
+      }
+      const evaluation = resultsMap[protocolito.id];
+      const contributionTemplate = {
+        title:
+          evaluation?.implementationTitle ||
+          protocolito.title ||
+          truncateTitle(protocolito.text || '', 90) ||
+          protocolito.id,
+        status: evaluation?.status || protocolito.status || 'pending',
+        summary:
+          evaluation?.implementationSummary ||
+          evaluation?.initialEvaluation ||
+          evaluation?.narrative ||
+          '',
+        capacity: evaluation?.implementationCapacity || evaluation?.capacityAssessment || '',
+        implementation: evaluation?.implementationResult || evaluation?.finalOutcome || '',
+        effects: Array.isArray(evaluation?.effects) ? evaluation.effects : []
+      };
+
+      protocolito.participantIds.forEach((participantId) => {
+        const participantEntry = participantMap[participantId];
+        if (!participantEntry || !participantEntry.participant) {
+          return;
+        }
+        if (!impactMap[participantId]) {
+          impactMap[participantId] = {
+            id: participantId,
+            entry: participantEntry,
+            participant: participantEntry.participant,
+            contributions: [],
+            supportReceived: []
+          };
+        }
+        impactMap[participantId].contributions.push({
+          ...contributionTemplate,
+          effects: contributionTemplate.effects.slice(0, 3)
+        });
+      });
+    });
+  }
+
+  Object.keys(participantMap).forEach((participantId) => {
+    if (impactMap[participantId]) {
+      return;
+    }
+    const participantEntry = participantMap[participantId];
+    if (participantEntry?.participant) {
+      impactMap[participantId] = {
+        id: participantId,
+        entry: participantEntry,
+        participant: participantEntry.participant,
+        contributions: [],
+        supportReceived: []
+      };
+    }
+  });
+
+  Object.entries(supportMap).forEach(([participantId, sources]) => {
+    if (!impactMap[participantId]) {
+      const participantEntry = participantMap[participantId];
+      if (participantEntry?.participant) {
+        impactMap[participantId] = {
+          id: participantId,
+          entry: participantEntry,
+          participant: participantEntry.participant,
+          contributions: [],
+          supportReceived: Array.isArray(sources) ? sources : [sources]
+        };
+      }
+      return;
+    }
+    const existing = impactMap[participantId];
+    existing.supportReceived = Array.isArray(sources) ? sources : [sources];
+  });
+
+  return Object.values(impactMap);
+}
+
+function formatImpactContribution(contribution) {
+  if (!contribution) {
+    return '';
+  }
+  const parts = [];
+  if (contribution.summary) {
+    parts.push(`design: ${contribution.summary}`);
+  }
+  if (contribution.capacity) {
+    parts.push(`capacity: ${contribution.capacity}`);
+  }
+  if (contribution.implementation) {
+    parts.push(`implementation: ${contribution.implementation}`);
+  }
+  if (Array.isArray(contribution.effects) && contribution.effects.length) {
+    parts.push(`effects: ${contribution.effects.join('; ')}`);
+  }
+  const details = parts.filter(Boolean).join(' | ');
+  return `* ${contribution.title || 'Protocolito'} (${contribution.status || 'status unknown'})${
+    details ? ` - ${details}` : ''
+  }`;
+}
+
+function buildParticipantImpactBlock(impacts) {
+  if (!Array.isArray(impacts) || !impacts.length) {
+    return '';
+  }
+
+  return impacts
+    .map((impact) => {
+      const person = impact.participant || {};
+      const contributions = impact.contributions.slice(0, 4);
+      const contributionsText = contributions.length
+        ? contributions.map((entry) => formatImpactContribution(entry)).join('\\n')
+        : '* No protocolitos involved this phase.';
+      return [
+        `Participant ID: ${impact.id}`,
+        `Name: ${person.name || 'Unnamed'}`,
+        `Pronouns: ${person.pronouns || 'unspecified'}`,
+        `Baseline capabilities: ${person.skills || 'No capability data recorded.'}`,
+        `Baseline capacities: ${describeParticipantCapacities(person)}`,
+        `Baseline condition: ${person.condition || 'No condition data recorded.'}`,
+        `Protocolitos this phase: ${impact.contributions.length}`,
+        Array.isArray(impact.supportReceived) && impact.supportReceived.length
+          ? `Support received this phase: ${impact.supportReceived.join(', ')}`
+          : 'Support received this phase: none',
+        `Burnout status: ${normalizeCapacityLevel(person.capacityLevel)}`,
+        person.statusLog
+          ? `Existing status log: ${person.statusLog.split('\n').slice(-2).join(' / ')}`
+          : 'Existing status log: none recorded.',
+        'Recent protocolito outcomes:',
+        contributionsText
+      ].join('\\n');
+    })
+    .join('\\n---\\n');
+}
+
+function appendStatusEntry(existingValue, phaseLabel, statusText) {
+  const normalized = sanitizeField(statusText);
+  if (!normalized) {
+    return {
+      changed: false,
+      value: existingValue || ''
+    };
+  }
+  const prefix = phaseLabel ? `${phaseLabel}: ` : '';
+  const addition = `${prefix}${normalized}`.trim();
+  const safeExisting = sanitizeField(existingValue);
+  if (!safeExisting) {
+    return {
+      changed: true,
+      value: addition
+    };
+  }
+  return {
+    changed: true,
+    value: `${safeExisting}\\n${addition}`.trim()
+  };
+}
+
+async function generateParticipantPhaseUpdates({
+  currentPhase,
+  scenario,
+  summaryHighlights,
+  participantsBlock,
+  evaluationsBlock,
+  developmentStage
+}) {
+  const [systemPrompt, userTemplate] = await Promise.all([
+    loader.load('participants/update-system.md'),
+    loader.load('participants/update-user.md')
+  ]);
+
+  const userPrompt = renderTemplate(userTemplate, {
+    currentPhase,
+    scenario,
+    summaryHighlights,
+    participantsBlock,
+    evaluationsBlock,
+    developmentStage
+  });
+
+  const response = await lmClient.generate({
+    system: systemPrompt,
+    user: userPrompt
+  });
+
+  const cleaned = cleanModelText(response.draft || '');
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (Array.isArray(parsed)) {
+      return {
+        updates: parsed,
+        usage: response.usage || null
+      };
+    }
+    if (parsed && Array.isArray(parsed.updates)) {
+      return {
+        updates: parsed.updates,
+        usage: response.usage || null
+      };
+    }
+    console.warn('Participant update response did not return an array.', cleaned);
+  } catch (error) {
+    console.error('Failed to parse participant update JSON', cleaned, error);
+    return null;
+  }
+  return null;
+}
+
+async function applyParticipantPhaseUpdates({
+  pendingProtocolitos,
+  resultsMap,
+  participantMap,
+  phaseIndex,
+  phaseLabel,
+  scenario,
+  summaryReport,
+  evaluationsBlock,
+  supportMap = {}
+}) {
+  const impacts = buildParticipantImpactSummaries(
+    pendingProtocolitos,
+    resultsMap,
+    participantMap,
+    supportMap
+  );
+  if (!impacts.length) {
+    return [];
+  }
+
+  const participantsBlock = buildParticipantImpactBlock(impacts);
+  if (!participantsBlock.trim()) {
+    return [];
+  }
+
+  const summaryHighlights = [
+    summaryReport?.pocasSummary ? `Pocas summary: ${summaryReport.pocasSummary}` : '',
+    summaryReport?.collectiveCapabilities
+      ? `Collective capabilities: ${summaryReport.collectiveCapabilities}`
+      : '',
+    summaryReport?.phaseReflection ? `Reflection: ${summaryReport.phaseReflection}` : ''
+  ]
+    .filter(Boolean)
+    .join('\\n');
+
+  let updateResponse = null;
+  try {
+    updateResponse = await generateParticipantPhaseUpdates({
+      currentPhase: phaseLabel,
+      scenario,
+      summaryHighlights,
+      participantsBlock,
+      evaluationsBlock,
+      developmentStage: summaryReport?.developmentStageHint || summaryReport?.developmentStage || ''
+    });
+  } catch (error) {
+    console.error('Failed to generate participant phase updates', error);
+  }
+
+  const updatesFromModel = new Map();
+  if (updateResponse && Array.isArray(updateResponse.updates)) {
+    updateResponse.updates.forEach((entry) => {
+      if (!entry) return;
+      const participantId = sanitizeField(entry.participantId || entry.id);
+      if (!participantId) return;
+      updatesFromModel.set(participantId, entry);
+    });
+  }
+
+  const applied = [];
+  for (const impact of impacts) {
+    const participantId = impact.id;
+    const participantEntry = participantMap[participantId];
+    if (!participantEntry || !participantEntry.participant) {
+      continue;
+    }
+    const participantData = { ...participantEntry.participant };
+    participantData.capacityLevel = normalizeCapacityLevel(participantData.capacityLevel);
+    participantData.overextensionStreak =
+      typeof participantData.overextensionStreak === 'number'
+        ? participantData.overextensionStreak
+        : 0;
+
+    const contributionsCount = Array.isArray(impact.contributions) ? impact.contributions.length : 0;
+    const supportReceived =
+      Array.isArray(impact.supportReceived) && impact.supportReceived.length > 0;
+
+    const burnoutMeta = updateBurnoutState(participantData, {
+      contributionsCount,
+      supportReceived,
+      phaseIndex
+    });
+
+    const modelUpdate = updatesFromModel.get(participantId) || {};
+    const statusLine =
+      sanitizeField(modelUpdate.statusLine || modelUpdate.currentStatus || modelUpdate.status) ||
+      'No discernible change this phase.';
+    const statusNote = appendStatusEntry(participantData.statusLog || '', phaseLabel, statusLine);
+    if (statusNote.changed) {
+      participantData.statusLog = statusNote.value;
+    }
+
+    const timestamp = new Date().toISOString();
+    const historyEntry = {
+      id: participantId,
+      timestamp,
+      mode: 'statusUpdate',
+      phaseIndex,
+      participant: participantData,
+      updates: {
+        statusLine,
+        phaseLabel,
+        overextended: burnoutMeta.overextended,
+        burnoutTriggered: burnoutMeta.burnoutTriggered,
+        supportReceived,
+        capacityLevel: participantData.capacityLevel
+      }
+    };
+
+    await recordParticipantHistory(historyEntry);
+    participantMap[participantId] = historyEntry;
+    applied.push({
+      participantId,
+      name: participantData.name,
+      statusLine,
+      overextended: burnoutMeta.overextended,
+      burnoutTriggered: burnoutMeta.burnoutTriggered
+    });
+  }
+
+  return applied;
+}
+
+function normalizeSeriesId(entry) {
+  if (!entry) {
+    return null;
+  }
+  return entry.seriesId || entry.id || null;
+}
+
+function truncateTitle(value, maxLength = 80) {
+  if (!value) {
+    return '';
+  }
+  if (value.length <= maxLength) {
+    return value;
+  }
+  return `${value.slice(0, maxLength).trim()}…`;
+}
+
+function summarizeProtocolitoSeries(protocolitos) {
+  if (!Array.isArray(protocolitos)) {
+    return [];
+  }
+  const seriesMap = {};
+
+  protocolitos.forEach((entry) => {
+    const seriesId = normalizeSeriesId(entry);
+    if (!seriesId) {
+      return;
+    }
+    if (!seriesMap[seriesId]) {
+      seriesMap[seriesId] = {
+        seriesId,
+        title: entry.title || '',
+        displayTitle: '',
+        versions: []
+      };
+    }
+    const versionNumber =
+      typeof entry.version === 'number' && Number.isFinite(entry.version)
+        ? entry.version
+        : seriesMap[seriesId].versions.length + 1;
+    seriesMap[seriesId].title = seriesMap[seriesId].title || entry.title || '';
+    seriesMap[seriesId].versions.push({
+      id: entry.id,
+      version: versionNumber,
+      phaseIndex: entry.phaseIndex,
+      timestamp: entry.timestamp,
+      text: entry.text,
+      status: entry.status || '',
+      participantIds: entry.participantIds || [],
+      title: entry.title || '',
+      scenario: entry.scenario || ''
+    });
+  });
+
+  return Object.values(seriesMap)
+    .map((series) => {
+      series.versions.sort((a, b) => {
+        if (a.version !== b.version) {
+          return a.version - b.version;
+        }
+        return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      });
+      series.versions = series.versions.map((version, index) => ({
+        ...version,
+        version: index + 1
+      }));
+      series.totalVersions = series.versions.length;
+      series.latest = series.versions[series.versions.length - 1] || null;
+      const fullTitle = series.title || series.latest?.title || series.seriesId;
+      series.title = fullTitle;
+      series.displayTitle = truncateTitle(fullTitle);
+      return series;
+    })
+    .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function protocolitoEntriesForSeries(list, seriesId) {
+  if (!seriesId || !Array.isArray(list)) {
+    return [];
+  }
+  return list.filter((entry) => normalizeSeriesId(entry) === seriesId);
+}
+
+function inferDevelopmentStageContext({ phaseIndex }) {
+  const safeIndex = Math.max(0, Math.min(DEVELOPMENT_STAGE_LEVELS.length - 1, phaseIndex));
+  const stage = DEVELOPMENT_STAGE_LEVELS[safeIndex] || DEVELOPMENT_STAGE_LEVELS[0];
+  return {
+    id: stage.id,
+    label: stage.label,
+    summary: stage.summary,
+    hint: `${stage.label}. ${stage.summary}`
+  };
 }
 
 async function getLatestScenario() {
@@ -348,7 +934,11 @@ async function evaluateSingleProtocolito({
   return parseSingleProtocolitoEvaluation(response.draft || '', protocolito.id);
 }
 
-async function summarizePhaseNarrative({ currentPhase, evaluationsBlock }) {
+async function summarizePhaseNarrative({
+  currentPhase,
+  evaluationsBlock,
+  developmentStage
+}) {
   const [systemPrompt, userTemplate] = await Promise.all([
     loader.load('protocolitos/summary-system.md'),
     loader.load('protocolitos/summary-user.md')
@@ -356,7 +946,9 @@ async function summarizePhaseNarrative({ currentPhase, evaluationsBlock }) {
 
   const userPrompt = renderTemplate(userTemplate, {
     currentPhase,
-    evaluationsBlock
+    evaluationsBlock,
+    developmentStage,
+    developmentStagesGuide
   });
 
   const response = await lmClient.generate({
@@ -373,6 +965,31 @@ async function summarizePhaseNarrative({ currentPhase, evaluationsBlock }) {
     narrative,
     model: response.model || 'local-ai'
   };
+}
+
+async function summarizePhaseBrief({ currentPhase, evaluationsBlock, summaryReport }) {
+  const [systemPrompt, userTemplate] = await Promise.all([
+    loader.load('protocolitos/brief-system.md'),
+    loader.load('protocolitos/brief-user.md')
+  ]);
+
+  const userPrompt = renderTemplate(userTemplate, {
+    currentPhase,
+    evaluationsBlock,
+    pocasSummary: summaryReport.pocasSummary || '',
+    collectiveCapabilities: summaryReport.collectiveCapabilities || '',
+    phaseReflection: summaryReport.phaseReflection || '',
+    developmentStage: summaryReport.developmentStage || '',
+    developmentStagesGuide,
+    developmentStageHint: summaryReport.developmentStageHint || ''
+  });
+
+  const response = await lmClient.generate({
+    system: systemPrompt,
+    user: userPrompt
+  });
+
+  return cleanModelText(response.draft || '');
 }
 
 async function generateParticipantProfile(scenario) {
@@ -410,7 +1027,12 @@ async function generateParticipantProfile(scenario) {
     condition: conditionText,
     workload: sanitizeField(participant.workload),
     caretaking: sanitizeField(participant.caretaking),
-    skills: sanitizeField(participant.skills)
+    skills: sanitizeField(participant.skills),
+    statusLog: '',
+    capacityLevel: 'normal',
+    overextensionStreak: 0,
+    restingUntilPhase: null,
+    lastOverextendedPhase: null
   };
 
   normalized.careLoad =
@@ -447,7 +1069,12 @@ function normalizeManualParticipant(input = {}) {
     ),
     workload: sanitizeField(input.workload) || mergedCare,
     caretaking: sanitizeField(input.caretaking) || mergedCare,
-    skills: sanitizeField(input.skills)
+    skills: sanitizeField(input.skills),
+    statusLog: sanitizeField(input.statusLog || input.currentStatus || ''),
+    capacityLevel: 'normal',
+    overextensionStreak: 0,
+    restingUntilPhase: null,
+    lastOverextendedPhase: null
   };
 
   participant.careLoad =
@@ -464,6 +1091,7 @@ function normalizeManualParticipant(input = {}) {
 async function evaluateCurrentPhase() {
   const currentPhase =
     TIMELINE[gameState.phaseIndex] || TIMELINE[TIMELINE.length - 1];
+  const stageContext = inferDevelopmentStageContext({ phaseIndex: gameState.phaseIndex });
   const allProtocolitos = loadProtocolitos();
   const pending = allProtocolitos.filter(
     (entry) => entry.phaseIndex === gameState.phaseIndex && entry.status === 'pending'
@@ -490,9 +1118,37 @@ async function evaluateCurrentPhase() {
           .join('\n')
       : 'The pocas space is newly forming with minimal shared infrastructure, scarce tools, and limited reserves.';
 
+  const workloadMap = pending.reduce((acc, protocolito) => {
+    protocolito.participantIds?.forEach((id) => {
+      if (!id) return;
+      acc[id] = (acc[id] || 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  const supportMap = pending.reduce((acc, protocolito) => {
+    if (!Array.isArray(protocolito.supportTargets)) {
+      return acc;
+    }
+    protocolito.supportTargets.forEach((targetId) => {
+      if (!targetId) {
+        return;
+      }
+      if (!acc[targetId]) {
+        acc[targetId] = [];
+      }
+      acc[targetId].push(protocolito.title || truncateTitle(protocolito.text || '', 60));
+    });
+    return acc;
+  }, {});
+
   const singleResults = [];
   for (const protocolito of pending) {
-    const detailBlock = buildParticipantDetails(protocolito.participantIds, participantMap);
+    const detailBlock = buildParticipantDetails(
+      protocolito.participantIds,
+      participantMap,
+      workloadMap
+    );
     const result = await evaluateSingleProtocolito({
       protocolito,
       scenario,
@@ -503,9 +1159,21 @@ async function evaluateCurrentPhase() {
     singleResults.push(result);
   }
 
+  const evaluationsBlock = buildEvaluationsBlock(singleResults);
+
   const summaryReport = await summarizePhaseNarrative({
     currentPhase: `${currentPhase.label} (${currentPhase.duration})`,
-    evaluationsBlock: buildEvaluationsBlock(singleResults)
+    evaluationsBlock,
+    developmentStage: stageContext.hint
+  });
+
+  summaryReport.developmentStage = stageContext.label;
+  summaryReport.developmentStageHint = stageContext.hint;
+
+  const phaseBrief = await summarizePhaseBrief({
+    currentPhase: `${currentPhase.label} (${currentPhase.duration})`,
+    evaluationsBlock,
+    summaryReport
   });
 
   const resultsMap = singleResults.reduce((acc, item) => {
@@ -521,18 +1189,34 @@ async function evaluateCurrentPhase() {
     if (!result) {
       return entry;
     }
+    const implementationSummary =
+      result.implementationSummary || result.initialEvaluation || '';
+    const implementationCapacity =
+      result.implementationCapacity || result.capacityAssessment || '';
+    const implementationResult =
+      result.implementationResult || result.finalOutcome || '';
+
     return {
       ...entry,
       status: result.status || 'reviewed',
+      title: result.implementationTitle || entry.title || '',
       evaluations: [
         ...entry.evaluations,
         {
           timestamp: new Date().toISOString(),
-          initialEvaluation: result.initialEvaluation || '',
-          capacityAssessment: result.capacityAssessment || '',
-          finalOutcome: result.finalOutcome || '',
+          implementationTitle: result.implementationTitle || '',
+          implementationSummary,
+          implementationCapacity,
+          implementationResult,
+          productionLine: result.productionLine || '',
+          productionQuantity: result.productionQuantity || '',
+          productionQuality: result.productionQuality || '',
           effects: Array.isArray(result.effects) ? result.effects : [],
-          status: result.status || ''
+          status: result.status || '',
+          // legacy fields for compatibility
+          initialEvaluation: implementationSummary,
+          capacityAssessment: implementationCapacity,
+          finalOutcome: implementationResult
         }
       ]
     };
@@ -541,6 +1225,19 @@ async function evaluateCurrentPhase() {
   saveProtocolitos(updatedList);
 
   const updatedScenario = sanitizeField(summaryReport.updatedScenario) || scenario;
+
+  const participantUpdates = await applyParticipantPhaseUpdates({
+    pendingProtocolitos: pending,
+    resultsMap,
+    participantMap,
+    phaseIndex: gameState.phaseIndex,
+    phaseLabel: `${currentPhase.label} (${currentPhase.duration})`,
+    scenario: updatedScenario,
+    summaryReport,
+    evaluationsBlock,
+    supportMap
+  });
+
   await recordWorldHistory({
     id: createEntryId('world'),
     timestamp: new Date().toISOString(),
@@ -570,19 +1267,38 @@ async function evaluateCurrentPhase() {
 
   const protocolSummaries = singleResults.map((result) => {
     const source = pending.find((entry) => entry.id === result.id);
+    const implementationSummary =
+      result.implementationSummary || result.initialEvaluation || '';
+    const implementationCapacity =
+      result.implementationCapacity || result.capacityAssessment || '';
+    const implementationResult =
+      result.implementationResult || result.finalOutcome || '';
     return {
       id: result.id,
+      seriesId: source ? normalizeSeriesId(source) : null,
       participantIds: source ? source.participantIds : [],
+      supportTargets: source?.supportTargets || [],
       participantNames: source
         ? source.participantIds.map((id) => participantMap[id]?.participant?.name || id)
         : [],
       text: source ? source.text : '',
       status: result.status || 'reviewed',
-      initialEvaluation: result.initialEvaluation || '',
-      capacityAssessment: result.capacityAssessment || '',
-      finalOutcome: result.finalOutcome || '',
+      implementationTitle: result.implementationTitle || '',
+      implementationSummary,
+      implementationCapacity,
+      implementationResult,
+      version: source?.version || null,
+      title: source?.title || '',
+      productionLine: result.productionLine || '',
+      productionQuantity: result.productionQuantity || '',
+      productionQuality: result.productionQuality || '',
       effects: Array.isArray(result.effects) ? result.effects : [],
-      narrative: result.narrative || ''
+      narrative: result.narrative || '',
+      // legacy fields
+      title: result.implementationTitle || '',
+      initialEvaluation: implementationSummary,
+      capacityAssessment: implementationCapacity,
+      finalOutcome: implementationResult
     };
   });
 
@@ -592,7 +1308,11 @@ async function evaluateCurrentPhase() {
     pocasSummary: summaryReport.pocasSummary || '',
     collectiveCapabilities: summaryReport.collectiveCapabilities || '',
     phaseReflection: summaryReport.phaseReflection || '',
-    narrative: summaryReport.narrative || ''
+    narrative: summaryReport.narrative || '',
+    phaseBrief,
+    developmentStage: summaryReport.developmentStage,
+    developmentStageHint: summaryReport.developmentStageHint,
+    participantUpdates
   };
 
   gameState.lastEvaluation = summary;
@@ -619,8 +1339,18 @@ async function recordParticipantHistory(entry) {
 
 async function getParticipants(limit = 100) {
   const entries = await readJSONLines(PARTICIPANT_HISTORY_FILE);
-  const filtered = entries.filter((entry) => entry && entry.participant);
-  return filtered.slice(-limit).reverse();
+  const latestMap = new Map();
+  entries.forEach((entry) => {
+    if (entry?.participant && entry?.id) {
+      latestMap.set(entry.id, entry);
+    }
+  });
+  const latestList = Array.from(latestMap.values()).sort((a, b) => {
+    const aTime = new Date(a.timestamp || 0).getTime();
+    const bTime = new Date(b.timestamp || 0).getTime();
+    return bTime - aTime;
+  });
+  return latestList.slice(0, limit);
 }
 
 async function getParticipantMap() {
@@ -752,7 +1482,6 @@ async function handleParticipantPost(req, res) {
         id: createEntryId('participant'),
         timestamp: new Date().toISOString(),
         mode: 'generated',
-        scenario,
         participant: generated.participant
       };
 
@@ -771,7 +1500,6 @@ async function handleParticipantPost(req, res) {
         id: createEntryId('participant'),
         timestamp: new Date().toISOString(),
         mode: 'manual',
-        scenario,
         participant: participantData
       };
 
@@ -911,6 +1639,99 @@ async function handleProtocolitoPost(req, res) {
     return sendJSON(res, 400, { error: 'Scenario snapshot is required.' });
   }
 
+  const participantMap = await getParticipantMap();
+
+  const allProtocolitos = loadProtocolitos();
+  const providedSeriesId = sanitizeField(payload.seriesId);
+  const providedTitle = truncateTitle(sanitizeField(payload.title));
+
+  let seriesId = providedSeriesId;
+  let version = 1;
+  let title = providedTitle;
+
+  if (providedSeriesId) {
+    const seriesEntries = protocolitoEntriesForSeries(allProtocolitos, providedSeriesId);
+    if (!seriesEntries.length) {
+      return sendJSON(res, 404, { error: 'Protocolito series not found.' });
+    }
+    const maxVersion = seriesEntries.reduce(
+      (acc, entry) => Math.max(acc, typeof entry.version === 'number' ? entry.version : 0),
+      0
+    );
+    version = maxVersion ? maxVersion + 1 : seriesEntries.length + 1;
+    const legacyTitle =
+      seriesEntries.find((entry) => entry.title)?.title ||
+      truncateTitle(seriesEntries[0]?.text || '');
+    title = legacyTitle || title;
+  } else {
+    seriesId = createEntryId('protoSeries');
+    title = title || truncateTitle(text.split('\n')[0] || '');
+    if (!title) {
+      return sendJSON(res, 400, { error: 'Protocolito title is required.' });
+    }
+  }
+
+  const restingParticipants = participantIds.filter((id) => {
+    const record = participantMap[id];
+    return record?.participant && isParticipantResting(record.participant, gameState.phaseIndex);
+  });
+  if (restingParticipants.length) {
+    const names = restingParticipants.map(
+      (id) => participantMap[id]?.participant?.name || id
+    );
+    return sendJSON(res, 400, {
+      error: `These participants are resting due to burnout: ${names.join(', ')}`
+    });
+  }
+
+  const supportTargets = Array.isArray(payload.supportTargets)
+    ? [
+        ...new Set(
+          payload.supportTargets
+            .map((id) => sanitizeField(id))
+            .filter(Boolean)
+        )
+      ]
+    : [];
+
+  const invalidSupportTargets = [];
+  const conflictingSupportTargets = [];
+  supportTargets.forEach((targetId) => {
+    if (!participantMap[targetId]?.participant) {
+      invalidSupportTargets.push(targetId);
+      return;
+    }
+    if (participantIds.includes(targetId)) {
+      conflictingSupportTargets.push(targetId);
+      return;
+    }
+    const targetParticipant = participantMap[targetId].participant;
+    const eligibleForSupport =
+      isParticipantResting(targetParticipant, gameState.phaseIndex) ||
+      normalizeCapacityLevel(targetParticipant.capacityLevel) === 'low';
+    if (!eligibleForSupport) {
+      invalidSupportTargets.push(targetId);
+    }
+  });
+
+  if (invalidSupportTargets.length) {
+    const names = invalidSupportTargets.map(
+      (id) => participantMap[id]?.participant?.name || id
+    );
+    return sendJSON(res, 400, {
+      error: `Support targets must be resting or low-capacity participants. Invalid: ${names.join(', ')}`
+    });
+  }
+
+  if (conflictingSupportTargets.length) {
+    const names = conflictingSupportTargets.map(
+      (id) => participantMap[id]?.participant?.name || id
+    );
+    return sendJSON(res, 400, {
+      error: `Participants cannot both implement and receive support: ${names.join(', ')}`
+    });
+  }
+
   const entry = {
     id: createEntryId('protocolito'),
     timestamp: new Date().toISOString(),
@@ -919,7 +1740,11 @@ async function handleProtocolitoPost(req, res) {
     text,
     scenario,
     status: 'pending',
-    evaluations: []
+    evaluations: [],
+    seriesId,
+    version,
+    title,
+    supportTargets
   };
 
   await recordProtocolito(entry);
@@ -953,9 +1778,11 @@ async function handleStateGet(res) {
       getLatestScenario()
     ]);
 
-    const protocolitos = loadProtocolitos().filter(
+    const allProtocolitos = loadProtocolitos();
+    const protocolitos = allProtocolitos.filter(
       (entry) => entry.phaseIndex === gameState.phaseIndex
     );
+    const protocolitoSeries = summarizeProtocolitoSeries(allProtocolitos);
 
     return sendJSON(res, 200, {
       phases: TIMELINE,
@@ -964,6 +1791,7 @@ async function handleStateGet(res) {
       scenario: latestScenario,
       participants,
       protocolitos,
+      protocolitoSeries,
       lastEvaluation: gameState.lastEvaluation || null
     });
   } catch (error) {
@@ -1057,4 +1885,5 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, HOST, () => {
   console.log(`POCAS setting generator listening on http://${HOST}:${PORT}`);
 });
+
 

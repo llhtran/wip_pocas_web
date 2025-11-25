@@ -66,6 +66,9 @@ JSONL files append one JSON object per line for easy log-style review.
 5. **Advance Phase** — When ready, “Advance to next phase” triggers:
    - For every pending protocolito, the server calls LM Studio with prompts in `prompts/protocolitos/eval-*`. Each micro-call only knows about that protocolito, its participants, the scenario, and the pocos capacity snapshot. Results are parsed into status, verdict, capacity check, outcome, and effects.
    - Once all micro-evals finish, another LM call (`prompts/protocolitos/summary-*`) reads all the evaluations and emits a refreshed scenario/pocas summary/collective capabilities/phase reflection.
+   - A dedicated pass (`prompts/participants/update-*`) now produces a “current status” sentence per involved participant, summarizing motivation and workload without rewriting their original descriptions. Each phase gets appended to the participant’s status log.
+   - The server tracks overextension streaks: two consecutive overworked phases force a burnout rest in the next phase. Burnt participants are automatically removed from the selection list until their rest is over.
+   - Any protocolito can optionally list “support targets.” If a resting or low-capacity participant is named here, successful implementation will restore them to normal capacity when they return.
    - Records are merged into `protocolitos.json`, `world-history.jsonl`, and `participants-history.jsonl`. `game-state.json` increments the phase index and caches the latest evaluation bundle.
    - The frontend reloads `GET /api/state` to show the new scenario plus an expandable evaluation under each protocolito.
 
@@ -90,11 +93,14 @@ Every endpoint returns JSON (`{ error: '...' }` on failure). Static assets (`pub
 - Single-column layout with CSS utility classes for panels, buttons, and “neon” accents.
 - Sticky timeline (with Reset button) always shows the five phases and current index.
 - Scenario card displays the latest LM response with `white-space: pre-line` and a “Generating” state while awaiting the server.
+- A right-hand “Collective capabilities map” stays sticky, summarizing current products/services and showing a spread meter that estimates how much the group operates in mutualist vs capitalist space based on recent protocolito outcomes.
 - Participants panel:
   - “Add Participant” toggles the manual form or allows character generation via LM Studio.
-  - Stored participants show a name box, a skills/knowledge summary, and a collapsible detail view (pronouns, condition, combined work & care load, scenario snippet, timestamp).
+  - Stored participants show a name box, a skills/knowledge summary, burnout status, and a collapsible detail view (pronouns, condition, combined work & care load, current status log, scenario snippet, timestamp). Phase updates append to the status log automatically.
+  - Participants marked as “Resting” (forced burnout leave) cannot be assigned to protocolitos until their rest phase concludes.
 - Protocolitos panel:
   - New agreements require selecting at least one participant and entering text.
+  - Resting or low-capacity participants can be added as “Support targets.” If the protocolito succeeds, those targets recover faster without having to perform work inside the protocolito.
   - Each protocolito now shows an inline `<details>`/`<summary>` block containing the evaluation (status, design verdict, capacity, outcome, effects, narrative). Line breaks in LM output are preserved using `formatText()` (HTML-escaped + `<br>` conversion).
   - The bottom “Phase Evaluation” section lists all protocolitos from the most recent `/api/advance-phase`, along with the updated scenario/pocas summary/collective capabilities/phase reflection.
 
@@ -107,6 +113,13 @@ All prompts are plain markdown under `prompts/`. Highlights:
 - `prompts/protocolitos/eval-*` – per-protocolito micro-evaluation.
 - `prompts/protocolitos/summary-*` – synthesize overall phase results.
 - `prompts/capabilities/*` – assess how collective products/services cover basic needs and how far the group lives between capitalist reliance and mutualist provisioning.
+
+## Burnout & Support Flow
+
+- **Overextension tracking** – Every participant records how many protocolitos they handle per phase. Normal capacity covers one protocolito; returning players tagged “low capacity” are expected to rest and will be flagged as overextended even with a small load.
+- **Burnout trigger** – Two consecutive overextended phases force a burnout rest. The participant’s `restingUntilPhase` is set to the next phase, and they cannot be selected for implementation until it passes.
+- **Support protocolitos** – Facilitators can flag a protocolito as supporting resting/low-capacity players by selecting them in the “Support burnout recovery” field. Successful support protocolitos restore those players to normal capacity when they come back.
+- **Automatic recovery** – After serving their rest phase, participants re-enter with low capacity by default. Completing a phase without overextension (or receiving support) returns them to normal capacity.
 
 Each prompt enforces natural-language formatting (no JSON), and the server parses the structured sections by regex. This avoids large context windows and repeated “invalid JSON” failures.
 
