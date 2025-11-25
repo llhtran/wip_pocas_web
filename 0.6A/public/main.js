@@ -25,6 +25,7 @@ const startPocasContainer = document.getElementById('startPocasContainer');
 const startPocasBtn = document.getElementById('startPocasBtn');
 const pocasHelpButton = document.getElementById('pocasHelpButton');
 const pocasSection = document.getElementById('pocasSection');
+const pocasTimerDisplay = document.getElementById('pocasTimerDisplay');
 const pocasRoundNumber = document.getElementById('pocasRoundNumber');
 const pocasRoundName = document.getElementById('pocasRoundName');
 const pocasRoundDuration = document.getElementById('pocasRoundDuration');
@@ -49,13 +50,18 @@ let buttonSoundIndex = 0;
 let soundsPreloaded = false;
 let intentionsHidden = true;
 let currentRoundIndex = 0;
+let roundTimerInterval = null;
+let roundTimerRemainingSeconds = 0;
+let pocasSessionActive = false;
 
 const roundSchedule = [
-  { label: 'Round 01', name: 'Getting Started', duration: 'Duration: 3 months' },
-  { label: 'Round 02', name: 'Deep Alignment', duration: 'Duration: 2 months' },
-  { label: 'Round 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks' },
-  { label: 'Round 04', name: 'Review & Adapt', duration: 'Duration: 1 month' }
+  { label: 'Round 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9 },
+  { label: 'Round 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9 },
+  { label: 'Round 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9 },
+  { label: 'Round 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9 }
 ];
+
+const DEFAULT_ROUND_TIMER_MINUTES = 9;
 
 function escapeHTML(value = '') {
   return value
@@ -476,6 +482,8 @@ if (startPocasBtn) {
   startPocasBtn.addEventListener('click', () => {
     playButtonSound();
     revealPocasSection();
+    pocasSessionActive = true;
+    startRoundTimer(currentRoundIndex);
   });
 }
 
@@ -489,6 +497,50 @@ if (pocasHelpButton) {
   });
 }
 
+function getRoundTimerMinutes(index = currentRoundIndex) {
+  const minutes = roundSchedule[index]?.timerMinutes;
+  if (typeof minutes === 'number' && minutes > 0) {
+    return minutes;
+  }
+  return DEFAULT_ROUND_TIMER_MINUTES;
+}
+
+function updateTimerDisplay() {
+  if (!pocasTimerDisplay) return;
+  const safeTime = Math.max(0, roundTimerRemainingSeconds);
+  const minutes = String(Math.floor(safeTime / 60)).padStart(2, '0');
+  const seconds = String(safeTime % 60).padStart(2, '0');
+  pocasTimerDisplay.textContent = `${minutes}:${seconds}`;
+}
+
+function stopRoundTimer() {
+  if (roundTimerInterval) {
+    clearInterval(roundTimerInterval);
+    roundTimerInterval = null;
+  }
+}
+
+function startRoundTimer(index = currentRoundIndex) {
+  stopRoundTimer();
+  roundTimerRemainingSeconds = getRoundTimerMinutes(index) * 60;
+  updateTimerDisplay();
+  roundTimerInterval = setInterval(() => {
+    roundTimerRemainingSeconds -= 1;
+    if (roundTimerRemainingSeconds <= 0) {
+      roundTimerRemainingSeconds = 0;
+      updateTimerDisplay();
+      stopRoundTimer();
+      return;
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function primeRoundTimerDisplay(index = currentRoundIndex) {
+  roundTimerRemainingSeconds = getRoundTimerMinutes(index) * 60;
+  updateTimerDisplay();
+}
+
 function renderRoundInfo(index = 0) {
   if (!pocasRoundNumber || !pocasRoundName || !pocasRoundDuration) return;
   const safeIndex = Math.max(0, Math.min(roundSchedule.length - 1, index));
@@ -499,16 +551,15 @@ function renderRoundInfo(index = 0) {
   currentRoundIndex = safeIndex;
 }
 
-function advanceRound() {
-  const nextIndex = (currentRoundIndex + 1) % roundSchedule.length;
-  renderRoundInfo(nextIndex);
-}
-
 renderRoundInfo(0);
+primeRoundTimerDisplay(0);
 if (typeof window !== 'undefined') {
   window.pocasRounds = {
     renderRoundInfo,
     advanceRound,
+    startRoundTimer,
+    stopRoundTimer,
+    primeRoundTimerDisplay,
     get schedule() {
       return roundSchedule.slice();
     }
