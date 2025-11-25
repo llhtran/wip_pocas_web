@@ -25,6 +25,9 @@ const startPocasContainer = document.getElementById('startPocasContainer');
 const startPocasBtn = document.getElementById('startPocasBtn');
 const pocasHelpButton = document.getElementById('pocasHelpButton');
 const pocasSection = document.getElementById('pocasSection');
+const pocasRoundNumber = document.getElementById('pocasRoundNumber');
+const pocasRoundName = document.getElementById('pocasRoundName');
+const pocasRoundDuration = document.getElementById('pocasRoundDuration');
 
 const introSlideshowInstance = new IntroSlideshow({
   container: introSlideshow,
@@ -45,6 +48,14 @@ let buttonSounds = [];
 let buttonSoundIndex = 0;
 let soundsPreloaded = false;
 let intentionsHidden = true;
+let currentRoundIndex = 0;
+
+const roundSchedule = [
+  { label: 'Round 01', name: 'Getting Started', duration: 'Duration: 3 months' },
+  { label: 'Round 02', name: 'Deep Alignment', duration: 'Duration: 2 months' },
+  { label: 'Round 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks' },
+  { label: 'Round 04', name: 'Review & Adapt', duration: 'Duration: 1 month' }
+];
 
 function escapeHTML(value = '') {
   return value
@@ -476,6 +487,32 @@ if (pocasHelpButton) {
       helpWindow.opener = null;
     }
   });
+}
+
+function renderRoundInfo(index = 0) {
+  if (!pocasRoundNumber || !pocasRoundName || !pocasRoundDuration) return;
+  const safeIndex = Math.max(0, Math.min(roundSchedule.length - 1, index));
+  const round = roundSchedule[safeIndex] || roundSchedule[0];
+  pocasRoundNumber.textContent = round.label;
+  pocasRoundName.textContent = round.name;
+  pocasRoundDuration.textContent = round.duration;
+  currentRoundIndex = safeIndex;
+}
+
+function advanceRound() {
+  const nextIndex = (currentRoundIndex + 1) % roundSchedule.length;
+  renderRoundInfo(nextIndex);
+}
+
+renderRoundInfo(0);
+if (typeof window !== 'undefined') {
+  window.pocasRounds = {
+    renderRoundInfo,
+    advanceRound,
+    get schedule() {
+      return roundSchedule.slice();
+    }
+  };
 }
 
 loadButtonSounds();
