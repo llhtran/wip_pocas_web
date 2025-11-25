@@ -149,17 +149,20 @@
     <section id="pocasSection" class="pocas-section hidden" aria-live="polite">
       <header class="pocas-header">
         <div class="pocas-header-columns">
-          <div class="pocas-header-cell">
-            <p class="pocas-label">Timer</p>
-            <p class="pocas-value">00:00</p>
+          <div class="pocas-header-cell pocas-timer-cell">
+            <p id="pocasTimerDisplay" class="pocas-value">09:00</p>
           </div>
-          <div class="pocas-header-cell">
-            <p class="pocas-label">Round</p>
-            <p class="pocas-value">01</p>
+          <div class="pocas-header-cell pocas-round-cell">
+            <div class="pocas-round-details">
+              <p id="pocasRoundNumber" class="pocas-round-number">Round 01</p>
+              <p id="pocasRoundName" class="pocas-round-name">Getting Started</p>
+              <p id="pocasRoundDuration" class="pocas-round-duration">Duration: 3 months</p>
+            </div>
           </div>
-          <div class="pocas-header-cell">
-            <p class="pocas-label">Help</p>
-            <p class="pocas-value">Need guidance?</p>
+          <div class="pocas-header-cell pocas-help-cell">
+            <button id="pocasHelpButton" type="button" class="pocas-help-button">
+              Help
+            </button>
           </div>
         </div>
       </header>

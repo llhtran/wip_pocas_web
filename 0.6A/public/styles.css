@@ -609,7 +609,7 @@ summary{
   width: 100%;
   max-width: 1200px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr 3fr 1fr;
   gap: clamp(0.75rem, 2vw, 1.5rem);
 }
 
@@ -621,6 +621,49 @@ summary{
   border-radius: 0.75rem;
   padding: clamp(0.75rem, 2vw, 1.5rem);
   background: rgba(0, 0, 0, 0.12);
+}
+
+.pocas-help-cell {
+  align-items: center;
+  border: none;
+  background: transparent;
+}
+
+.pocas-timer-cell {
+  border: none;
+  background: transparent;
+}
+
+.pocas-round-cell {
+  padding: 0;
+  border: none;
+  background: transparent;
+  align-items: center;
+  text-align: center;
+}
+
+.pocas-help-button {
+  width: clamp(3rem, 10vw, 4.5rem);
+  aspect-ratio: 1/1;
+  border-radius: 999px;
+  border: 2px solid var(--bg-color);
+  background: var(--bg-color);
+  color: var(--accent-color);
+  font-family: var(--display-font);
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+  letter-spacing: var(--heading-letter-spacing);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  box-shadow: 0 0.3rem 1.25rem rgba(0, 0, 0, 0.25);
+}
+
+.pocas-help-button:hover,
+.pocas-help-button:focus-visible {
+  transform: scale(1.04);
+  box-shadow: 0 0.5rem 1.75rem rgba(0, 0, 0, 0.3);
+  outline: 3px solid rgba(255, 255, 255, 0.65);
+  outline-offset: 3px;
 }
 
 .pocas-label {
@@ -636,6 +679,28 @@ summary{
   font-size: clamp(1.8rem, 4vw, 3rem);
   letter-spacing: 0.08em;
   margin: 0;
+}
+
+.pocas-round-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pocas-round-number {
+  font-family: var(--display-font);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.pocas-round-name,
+.pocas-round-duration {
+  margin: 0;
+  font-family: var(--body-font);
+  font-size: clamp(0.85rem, 1.6vw, 1rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .pocas-band {
