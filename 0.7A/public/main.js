@@ -28,6 +28,20 @@ const toggleIntentionsBtn = document.getElementById('toggleIntentionsBtn');
 const startPocasContainer = document.getElementById('startPocasContainer');
 const startPocasBtn = document.getElementById('startPocasBtn');
 const pocasHelpButton = document.getElementById('pocasHelpButton');
+const helpIcon = document.getElementById('helpIcon');
+const helpChatBubble = document.getElementById('helpChatBubble');
+const pocasLink = document.getElementById('pocasLink');
+const pocasIframeContainer = document.getElementById('pocasIframeContainer');
+const pocasIframe = document.getElementById('pocasIframe');
+const pocasIframeHeader = document.getElementById('pocasIframeHeader');
+const pocasIframeResizeHandle = document.getElementById('pocasIframeResizeHandle');
+const closePocasIframe = document.getElementById('closePocasIframe');
+const creditsLink = document.getElementById('creditsLink');
+const creditsContainer = document.getElementById('creditsContainer');
+const creditsHeader = document.getElementById('creditsHeader');
+const creditsResizeHandle = document.getElementById('creditsResizeHandle');
+const closeCredits = document.getElementById('closeCredits');
+const settingsLink = document.getElementById('settingsLink');
 const pocasSection = document.getElementById('pocasSection');
 const pocasTimerDisplay = document.getElementById('pocasTimerDisplay');
 const pocasRoundNumber = document.getElementById('pocasRoundNumber');
@@ -53,6 +67,7 @@ let participantEntries = [];
 let buttonSounds = [];
 let buttonSoundIndex = 0;
 let soundsPreloaded = false;
+let squishSound = null;
 let intentionsHidden = true;
 let currentRoundIndex = 0;
 let roundTimerInterval = null;
@@ -60,10 +75,10 @@ let roundTimerRemainingSeconds = 0;
 let pocasSessionActive = false;
 
 const roundSchedule = [
-  { label: 'Round 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9 },
-  { label: 'Round 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9 },
-  { label: 'Round 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9 },
-  { label: 'Round 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9 }
+  { label: 'ROUND 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9 },
+  { label: 'ROUND 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9 },
+  { label: 'ROUND 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9 },
+  { label: 'ROUND 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9 }
 ];
 
 const DEFAULT_ROUND_TIMER_MINUTES = 9;
@@ -205,6 +220,24 @@ function playButtonSound() {
     audio.play().catch(() => {});
   }
   buttonSoundIndex = (buttonSoundIndex + 1) % buttonSounds.length;
+}
+
+function loadSquishSound() {
+  if (!squishSound) {
+    squishSound = new Audio('/media/sounds/help/squish.wav');
+    squishSound.preload = 'auto';
+    squishSound.volume = 0.75;
+  }
+}
+
+function playSquishSound() {
+  if (!squishSound) {
+    loadSquishSound();
+  }
+  if (squishSound) {
+    squishSound.currentTime = 0;
+    squishSound.play().catch(() => {});
+  }
 }
 
 function applyIntentionsMask() {
@@ -617,17 +650,291 @@ if (pocasHelpButton) {
   });
 }
 
+if (helpIcon) {
+  helpIcon.addEventListener('click', (event) => {
+    event.stopPropagation();
+    playSquishSound();
+    if (helpChatBubble) {
+      helpChatBubble.classList.toggle('visible');
+    }
+  });
+  
+  helpIcon.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      playSquishSound();
+      if (helpChatBubble) {
+        helpChatBubble.classList.toggle('visible');
+      }
+    }
+  });
+}
+
+// Close chat bubble when clicking outside
+if (helpChatBubble) {
+  helpChatBubble.addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+  
+  document.addEventListener('click', (event) => {
+    if (helpChatBubble && helpChatBubble.classList.contains('visible')) {
+      if (!helpIcon.contains(event.target) && !helpChatBubble.contains(event.target)) {
+        helpChatBubble.classList.remove('visible');
+      }
+    }
+  });
+}
+
+if (pocasLink) {
+  pocasLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    playButtonSound();
+    if (pocasIframeContainer) {
+      pocasIframeContainer.classList.remove('hidden');
+      if (helpChatBubble) {
+        helpChatBubble.classList.remove('visible');
+      }
+    }
+  });
+}
+
+if (creditsLink) {
+  creditsLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    playButtonSound();
+    if (creditsContainer) {
+      creditsContainer.classList.remove('hidden');
+      if (helpChatBubble) {
+        helpChatBubble.classList.remove('visible');
+      }
+    }
+  });
+}
+
+if (closeCredits) {
+  closeCredits.addEventListener('click', () => {
+    playButtonSound();
+    if (creditsContainer) {
+      creditsContainer.classList.add('hidden');
+    }
+  });
+}
+
+if (settingsLink) {
+  settingsLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    playButtonSound();
+    // Settings functionality to be implemented later
+  });
+}
+
+if (closePocasIframe) {
+  closePocasIframe.addEventListener('click', () => {
+    playButtonSound();
+    if (pocasIframeContainer) {
+      pocasIframeContainer.classList.add('hidden');
+    }
+  });
+}
+
+// Make iframe draggable
+if (pocasIframeHeader && pocasIframeContainer) {
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  pocasIframeHeader.addEventListener('mousedown', (event) => {
+    if (event.target === closePocasIframe || closePocasIframe.contains(event.target)) {
+      return;
+    }
+    initialX = event.clientX - xOffset;
+    initialY = event.clientY - yOffset;
+
+    if (event.target === pocasIframeHeader || pocasIframeHeader.contains(event.target)) {
+      isDragging = true;
+      pocasIframeContainer.classList.add('dragging');
+    }
+  });
+
+  document.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+      event.preventDefault();
+      currentX = event.clientX - initialX;
+      currentY = event.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      pocasIframeContainer.style.transform = `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px))`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      pocasIframeContainer.classList.remove('dragging');
+    }
+  });
+}
+
+// Make iframe resizable
+if (pocasIframeResizeHandle && pocasIframeContainer) {
+  let isResizing = false;
+  let startX;
+  let startY;
+  let startWidth;
+  let startHeight;
+
+  pocasIframeResizeHandle.addEventListener('mousedown', (event) => {
+    isResizing = true;
+    startX = event.clientX;
+    startY = event.clientY;
+    startWidth = parseInt(document.defaultView.getComputedStyle(pocasIframeContainer).width, 10);
+    startHeight = parseInt(document.defaultView.getComputedStyle(pocasIframeContainer).height, 10);
+    pocasIframeContainer.classList.add('dragging');
+    event.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (event) => {
+    if (isResizing) {
+      const width = startWidth + event.clientX - startX;
+      const height = startHeight + event.clientY - startY;
+      
+      const minWidth = 300;
+      const minHeight = 300;
+      const maxWidth = window.innerWidth * 0.9;
+      const maxHeight = window.innerHeight * 0.9;
+      
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, width));
+      const newHeight = Math.max(minHeight, Math.min(maxHeight, height));
+      
+      pocasIframeContainer.style.width = `${newWidth}px`;
+      pocasIframeContainer.style.height = `${newHeight}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isResizing) {
+      isResizing = false;
+      pocasIframeContainer.classList.remove('dragging');
+    }
+  });
+}
+
+// Make credits window draggable
+if (creditsHeader && creditsContainer) {
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  creditsHeader.addEventListener('mousedown', (event) => {
+    if (event.target === closeCredits || closeCredits.contains(event.target)) {
+      return;
+    }
+    initialX = event.clientX - xOffset;
+    initialY = event.clientY - yOffset;
+
+    if (event.target === creditsHeader || creditsHeader.contains(event.target)) {
+      isDragging = true;
+      creditsContainer.classList.add('dragging');
+    }
+  });
+
+  document.addEventListener('mousemove', (event) => {
+    if (isDragging) {
+      event.preventDefault();
+      currentX = event.clientX - initialX;
+      currentY = event.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      creditsContainer.style.transform = `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px))`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+      creditsContainer.classList.remove('dragging');
+    }
+  });
+}
+
+// Make credits window resizable
+if (creditsResizeHandle && creditsContainer) {
+  let isResizing = false;
+  let startX;
+  let startY;
+  let startWidth;
+  let startHeight;
+
+  creditsResizeHandle.addEventListener('mousedown', (event) => {
+    isResizing = true;
+    startX = event.clientX;
+    startY = event.clientY;
+    startWidth = parseInt(document.defaultView.getComputedStyle(creditsContainer).width, 10);
+    startHeight = parseInt(document.defaultView.getComputedStyle(creditsContainer).height, 10);
+    creditsContainer.classList.add('dragging');
+    event.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (event) => {
+    if (isResizing) {
+      const width = startWidth + event.clientX - startX;
+      const height = startHeight + event.clientY - startY;
+      
+      const minWidth = 300;
+      const minHeight = 300;
+      const maxWidth = window.innerWidth * 0.9;
+      const maxHeight = window.innerHeight * 0.9;
+      
+      const newWidth = Math.max(minWidth, Math.min(maxWidth, width));
+      const newHeight = Math.max(minHeight, Math.min(maxHeight, height));
+      
+      creditsContainer.style.width = `${newWidth}px`;
+      creditsContainer.style.height = `${newHeight}px`;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isResizing) {
+      isResizing = false;
+      creditsContainer.classList.remove('dragging');
+    }
+  });
+}
+
 function getRoundTimerMinutes(index = currentRoundIndex) {
-  const minutes = roundSchedule[index]?.timerMinutes;
-  if (typeof minutes === 'number' && minutes > 0) {
-    return minutes;
-  }
-  return DEFAULT_ROUND_TIMER_MINUTES;
+  // All rounds use a fixed duration of 1 minute 8 seconds (68 seconds).
+  // We keep the return value in minutes for compatibility with existing logic.
+  return 68 / 60;
 }
 
 function updateTimerDisplay() {
   if (!pocasTimerDisplay) return;
   const safeTime = Math.max(0, roundTimerRemainingSeconds);
+  // Only show the timer when 60 seconds or less remain.
+  if (safeTime <= 60) {
+    pocasTimerDisplay.classList.remove('hidden');
+  } else {
+    pocasTimerDisplay.classList.add('hidden');
+  }
   const minutes = String(Math.floor(safeTime / 60)).padStart(2, '0');
   const seconds = String(safeTime % 60).padStart(2, '0');
   pocasTimerDisplay.textContent = `${minutes}:${seconds}`;
@@ -687,6 +994,7 @@ if (typeof window !== 'undefined') {
 }
 
 loadButtonSounds();
+loadSquishSound();
 applyIntentionsMask();
 toggleStartPocasAvailability();
 
