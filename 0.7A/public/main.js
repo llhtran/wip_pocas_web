@@ -75,10 +75,10 @@ let roundTimerRemainingSeconds = 0;
 let pocasSessionActive = false;
 
 const roundSchedule = [
-  { label: 'ROUND 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9 },
-  { label: 'ROUND 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9 },
-  { label: 'ROUND 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9 },
-  { label: 'ROUND 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9 }
+  { label: 'ROUND 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9, accentColor: '#32cd32' },
+  { label: 'ROUND 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9, accentColor: '#ff42b4' },
+  { label: 'ROUND 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9, accentColor: '#32cd32' },
+  { label: 'ROUND 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9, accentColor: '#32cd32' }
 ];
 
 const DEFAULT_ROUND_TIMER_MINUTES = 9;
@@ -637,6 +637,8 @@ if (startPocasBtn) {
     startAmbientLoop();
     startSongPlaylistLoop();
     startRoundTimer(currentRoundIndex);
+    // Apply the accent color for the first round when pocas starts
+    renderRoundInfo(currentRoundIndex);
   });
 }
 
@@ -973,6 +975,11 @@ function renderRoundInfo(index = 0) {
   pocasRoundName.textContent = round.name;
   pocasRoundDuration.textContent = round.duration;
   currentRoundIndex = safeIndex;
+  
+  // Update accent color for the round (only if pocas session is active)
+  if (pocasSessionActive && round.accentColor) {
+    document.documentElement.style.setProperty('--accent-color', round.accentColor);
+  }
 }
 
 renderRoundInfo(0);
