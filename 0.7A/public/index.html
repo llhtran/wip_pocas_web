@@ -367,6 +367,57 @@
       </section>
     </section>
 
+    <div id="helpIcon" class="help-icon" role="button" tabindex="0" aria-label="Help">
+      <img src="/media/icons/interrogacion_blanco.png" alt="Help icon" />
+      <div id="helpChatBubble" class="help-chat-bubble">
+        <a href="#" id="pocasLink" class="help-link" tabindex="0">POCAS WIKI</a>
+        <a href="#" id="creditsLink" class="help-link" tabindex="0">Credits</a>
+        <a href="#" id="settingsLink" class="help-link" tabindex="0">Settings</a>
+      </div>
+    </div>
+
+    <div id="pocasIframeContainer" class="pocas-iframe-container hidden">
+      <div id="pocasIframeHeader" class="pocas-iframe-header">
+        <span>EXPLORE THE POCAS UNIVERSE</span>
+        <button id="closePocasIframe" class="close-iframe-button" type="button" aria-label="Close">×</button>
+      </div>
+      <iframe id="pocasIframe" src="https://pocas.store" title="POCAS"></iframe>
+      <div id="pocasIframeResizeHandle" class="pocas-iframe-resize-handle"></div>
+    </div>
+
+    <div id="creditsContainer" class="pocas-iframe-container hidden">
+      <div id="creditsHeader" class="pocas-iframe-header">
+        <span>CREDITS</span>
+        <button id="closeCredits" class="close-iframe-button" type="button" aria-label="Close">×</button>
+      </div>
+      <div id="creditsContent" class="credits-content">
+        <h2>CREDITS</h2>
+        <div class="credits-list">
+          <div class="credit-item">
+            <p class="credit-name">Pablo Somonte Ruano</p>
+            <p class="credit-role">XYZ</p>
+          </div>
+          <div class="credit-item">
+            <p class="credit-name">Laura</p>
+            <p class="credit-role">XYZ</p>
+          </div>
+          <div class="credit-item">
+            <p class="credit-name">Tran Le Hong Lien</p>
+            <p class="credit-role">XYZ</p>
+          </div>
+          <div class="credit-item">
+            <p class="credit-name">Rok Kranjc</p>
+            <p class="credit-role">XYZ</p>
+          </div>
+          <div class="credit-item">
+            <p class="credit-name">Javier Arango Garfias</p>
+            <p class="credit-role">XYZ</p>
+          </div>
+        </div>
+      </div>
+      <div id="creditsResizeHandle" class="pocas-iframe-resize-handle"></div>
+    </div>
+
     <script type="module" src="/main.js"></script>
   </body>
 </html>
