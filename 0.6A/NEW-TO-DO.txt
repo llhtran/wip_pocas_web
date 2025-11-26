@@ -1,40 +1,54 @@
 To-do:
 
+Simplify and consolidate font sizing and hierarchy for the protocolitos section.
+
+Tweak header styling hide timer (then show).
+
+Custom cursor?
+
+Alert when not entering capacity
+
+Add stamp to dithered images from slideshow.
+
+bicycle for waiting for a stage generation?
+
+Make a few new songs.
+
+
+Plug in protocolitos system with versioning
+Add the phases and stages
+And generate new setting
+
+Change the colors as you move through the phases
+
+Round colors: 
+Verde limón, 
+Azul claro, 
+Naranja,  
+Amarillo, 
+Azul oscuro
+Morado
+
+--- Extra:
+Cucarachitas initial screen + gradient
+POCAS title in mayusculas
+
+Help es cucarachita con ? y fija en la esquina abajo derecha. Con el squish sound
+Abre menú con instrucciones y el sitio de pocas
+
+Link to about and instructions
+
+NPC system:
+1 player gives you 1 NPC.
+Based on Javier's character sheet
+Get new NPCs either with each extra 4 human players, or through stages.
+
+
 Do at least 1 full game session so we can be the first world in the archive.
-
-Telegram cucarachita sticker pack.
-
-How to do an easter egg of other worlds?
-
-Iblis Dwells a Line: Opportunity high paying full time remote job.
-Militarized futures: Input some references into the authorithatian setting generation
-Ktown: One of the characters is a Ktown modder
-Alice Guo: Job offer from click farm?
-
-Offer:
-Stickers, logo, description
-
-INTRO:
-Add cucarachitas to initial screen
 
 SLIDESHOW:
 Style for dialogues from friend
 Style for emphasis on important words.
-
-Call in the chat for who wants to be in the list of friends for the intro.
-
-Introduce settings image.
-
-PARTICIPANTS:
-Add optional field with intentions, text can be hidden. Others should be mandatory for submition. 
-Do an AI call to define one of the moods for each player and 1 of 4 levels of availability. (With an estimation of hours per week)
-
-Make new cumbia or urban / city ambient for intro and setting.
-Make more songs, slow, detuned, weird car honk corridos reguetton and cumbia, mix them in a weird mix, coming and going as if walking around in a market.
-
-After at least 2 players have been added, show a new button below the participants list for 'Start your pocas'
-
-When clicking it, we will display the new interface. Prompt the interface before plugging the protocolito.
 
 
 Dashboard with:
@@ -44,17 +58,11 @@ Collective mood
 
 Space & Collective capacities
 
-
-New Period and Stages template to work with Rok
-
-Period are a hard system
-Stages are only crossed with specific thersholds
-
 For each Stage # of NPCs per number of "real" players: 
 
 
 
-Introduce protocolito with versioning
+
 
 Evaluation determines:
 Changes in participants' capacity, availability and conditions

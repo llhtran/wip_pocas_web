@@ -1,10 +1,13 @@
 import { IntroSlideshow, pickRandomIdentity, prepareSlides } from './slideshow.js';
+import { fadeOutIntroMusicNow, playIntroMusicOnce, startAmbientLoop, startSongPlaylistLoop } from './soundtrack.js';
 
 const startButton = document.getElementById('startButton');
 const statusLine = document.getElementById('statusLine');
 const difficultySelect = document.getElementById('difficultySelect');
 const settingScreen = document.getElementById('settingScreen');
 const settingText = document.getElementById('settingText');
+const settingImageFrame = document.getElementById('settingImageFrame');
+const settingImageEl = document.getElementById('settingImage');
 const introduceBtn = document.getElementById('introduceBtn');
 const introParticipantForm = document.getElementById('introParticipantForm');
 const participantsScreen = document.getElementById('participantsScreen');
@@ -17,6 +20,7 @@ const participantsHeading = document.getElementById('participantsHeading');
 const meetingBtn = document.getElementById('meetingBtn');
 const introSlideshow = document.getElementById('introSlideshow');
 const slideImage = document.getElementById('slideImage');
+const slideSticker = document.getElementById('slideSticker');
 const slideText = document.getElementById('slideText');
 const skipIntroBtn = document.getElementById('skipIntroBtn');
 const intentionsInput = document.getElementById('participantIntentions');
@@ -33,6 +37,7 @@ const pocasRoundDuration = document.getElementById('pocasRoundDuration');
 const introSlideshowInstance = new IntroSlideshow({
   container: introSlideshow,
   imageEl: slideImage,
+  stickerEl: slideSticker,
   textEl: slideText,
   onSlideStart: ({ index, total }) => {
     if (index === total - 1 && introSlideshow?.classList.contains('visible')) {
@@ -62,6 +67,14 @@ const roundSchedule = [
 ];
 
 const DEFAULT_ROUND_TIMER_MINUTES = 9;
+const SETTING_IMAGE_BASE_PATH = '/media/settings';
+const SETTING_IMAGE_SETS = {
+  '1-2': createSettingImageList(6),
+  '2-3': createSettingImageList(5),
+  '3-4': createSettingImageList(4),
+  '4-5_collapse': createSettingImageList(5),
+  '4-5_corporate_fascist': createSettingImageList(3)
+};
 
 function escapeHTML(value = '') {
   return value
@@ -85,6 +98,81 @@ function shuffleArray(list) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
+}
+
+function pickRandomItem(list) {
+  if (!Array.isArray(list) || !list.length) {
+    return null;
+  }
+  const index = Math.floor(Math.random() * list.length);
+  return list[index];
+}
+
+function createSettingImageList(total = 0) {
+  return Array.from({ length: total }, (_, index) => `${index + 1}.png`);
+}
+
+function getAxisScore(axes, key) {
+  if (!Array.isArray(axes)) {
+    return 0;
+  }
+  const match = axes.find((axis) => axis?.key === key);
+  const value = Number(match?.score);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function averageAxisScore(axes) {
+  if (!Array.isArray(axes) || !axes.length) {
+    return 0;
+  }
+  const total = axes.reduce((sum, axis) => {
+    const value = Number(axis?.score);
+    return sum + (Number.isFinite(value) ? value : 0);
+  }, 0);
+  return total / axes.length;
+}
+
+function selectHighTensionFolder(axes) {
+  const collapseScore = getAxisScore(axes, 'environmentalCollapse');
+  const hegemonyScore = getAxisScore(axes, 'capitalistHegemony');
+  const authoritarianScore = getAxisScore(axes, 'authoritarianState');
+  if (collapseScore >= hegemonyScore && collapseScore >= authoritarianScore) {
+    return '4-5_collapse';
+  }
+  return '4-5_corporate_fascist';
+}
+
+function selectSettingImageFolder(axes) {
+  if (!Array.isArray(axes) || !axes.length) {
+    return null;
+  }
+  const meanScore = averageAxisScore(axes);
+  if (meanScore < 2) {
+    return '1-2';
+  }
+  if (meanScore < 3) {
+    return '2-3';
+  }
+  if (meanScore < 4) {
+    return '3-4';
+  }
+  return selectHighTensionFolder(axes);
+}
+
+function resolveSettingImageSource(axes) {
+  const folder = selectSettingImageFolder(axes);
+  if (!folder) {
+    return null;
+  }
+  const catalog = SETTING_IMAGE_SETS[folder];
+  if (!Array.isArray(catalog) || !catalog.length) {
+    return null;
+  }
+  const filename = pickRandomItem(catalog);
+  if (!filename) {
+    return null;
+  }
+  return `${SETTING_IMAGE_BASE_PATH}/${folder}/${filename}`;
 }
 
 function loadButtonSounds() {
@@ -150,6 +238,27 @@ function updateSettingText(text) {
   if (settingText) {
     settingText.textContent = text || 'The local AI could not return a scenario.';
   }
+}
+
+function clearSettingImage() {
+  if (!settingImageFrame || !settingImageEl) {
+    return;
+  }
+  settingImageEl.removeAttribute('src');
+  settingImageFrame.classList.add('hidden');
+}
+
+function updateSettingImage(axes) {
+  if (!settingImageFrame || !settingImageEl) {
+    return;
+  }
+  const source = resolveSettingImageSource(axes);
+  if (!source) {
+    clearSettingImage();
+    return;
+  }
+  settingImageEl.setAttribute('src', source);
+  settingImageFrame.classList.remove('hidden');
 }
 
 function showSkipButton() {
@@ -252,10 +361,13 @@ function renderParticipantsCards() {
       const intentionsBlock = entry.intentions
         ? `<p class="field-block"><strong>Intentions</strong><br>${escapeHTML(entry.intentions)}</p>`
         : '';
-      const motivationLevel = (entry.motivationLevel || 'medium').toLowerCase();
-      const motivationLabel =
-        motivationLevel.charAt(0).toUpperCase() + motivationLevel.slice(1);
-      const motivationBadge = `<span class="motivation-badge level-${motivationLevel}">${escapeHTML(
+      const motivationLevelRaw = (entry.motivationLevel || 'medium').toLowerCase();
+      const motivationLevelKey = motivationLevelRaw.replace(/\s+/g, '-');
+      const motivationLabel = motivationLevelKey
+        .split('-')
+        .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+        .join(' ');
+      const motivationBadge = `<span class="motivation-badge level-${motivationLevelKey}">${escapeHTML(
         motivationLabel
       )}</span>`;
       const pronounText = entry.pronouns ? ` (${escapeHTML(entry.pronouns)})` : '';
@@ -353,6 +465,7 @@ async function handleShareParticipant() {
   clearParticipantForm();
   introParticipantForm.classList.add('hidden');
   playButtonSound();
+  participantsScreen?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 async function requestSetting(level) {
@@ -370,6 +483,7 @@ async function requestSetting(level) {
   const payload = await response.json();
   latestSetting = payload;
   updateSettingText(payload.draft || '');
+  updateSettingImage(payload.axes);
   console.info('Initial setting draft', payload);
   return payload;
 }
@@ -378,6 +492,7 @@ async function handleStart() {
   if (!startButton) return;
   startButton.disabled = true;
   setStatus('Contacting the local AI…');
+  clearSettingImage();
   let slideshowPromise = Promise.resolve();
 
   try {
@@ -401,6 +516,7 @@ async function handleStart() {
     setStatus(error.message || 'Something went wrong.');
     introSlideshowInstance.hide();
     hideSkipButton();
+    clearSettingImage();
   } finally {
     try {
       await slideshowPromise;
@@ -415,6 +531,7 @@ async function handleStart() {
 if (startButton) {
   startButton.addEventListener('click', (event) => {
     playButtonSound();
+    playIntroMusicOnce();
     handleStart(event);
   });
 }
@@ -481,8 +598,11 @@ if (toggleIntentionsBtn) {
 if (startPocasBtn) {
   startPocasBtn.addEventListener('click', () => {
     playButtonSound();
+    fadeOutIntroMusicNow();
     revealPocasSection();
     pocasSessionActive = true;
+    startAmbientLoop();
+    startSongPlaylistLoop();
     startRoundTimer(currentRoundIndex);
   });
 }

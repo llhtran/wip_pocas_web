@@ -16,10 +16,18 @@ async function assessMotivationLevel(lmClient, availabilityText = '', conditionT
   try {
     const response = await lmClient.generate({
       system:
-        'You categorize motivation/availability for a collaborative projects at pocas. Respond with exactly one word: Burned Out, Low, Medium, or High.',
+        'You categorize motivation/availability for collaborative projects at pocas. Respond with exactly one word: Burned Out, Low, Medium, High, or Very High.',
       user: [
         'Given the following participant description, classify their motivation and availability level for collaborating in a pocas.',
-        'Return Burned Out if they are exhausted, hurt, or cannot help at all; Low if they have very little bandwidth; Medium if they can help somewhat; or High if they seem broadly available and in good condition. Consider the mix of both their availability and condition, if they are somewhat at odds go for the medium level. If they explicitly state their availability, consider it highly relevant to the classification. Availability is more relevant than condition.',
+        [
+          'Guidelines:',
+          '- Burned Out: exhausted, injured, or explicitly unable to help.',
+          '- Low: very limited availability (e.g., “barely any time”, “maybe once a month”).',
+          '- Medium: mixed signals, partial availability, or conflicting condition vs availability.',
+          '- High: they sound generally available/energized (phrases like “mostly available”, “can help most days”, “strong and fit” should be High unless they also state strict limits).',
+          '- Very High: explicit surplus time/energy plus strong eagerness (“full-time free”, “all my time is yours”, etc.).',
+          'Availability signals override condition. If availability is clearly good and condition is positive, prefer High. Only fall back to Medium when the description is ambiguous or balanced between High and Low.'
+        ].join('\n'),
         'Description:',
         '"""',
         context,
@@ -28,9 +36,24 @@ async function assessMotivationLevel(lmClient, availabilityText = '', conditionT
     });
 
     const normalized = response.draft?.trim().toLowerCase();
-    if (['burned out', 'burned-out', 'burnedout', 'low', 'medium', 'high'].includes(normalized)) {
+    if (
+      [
+        'burned out',
+        'burned-out',
+        'burnedout',
+        'low',
+        'medium',
+        'high',
+        'very high',
+        'very-high',
+        'veryhigh'
+      ].includes(normalized)
+    ) {
       if (normalized.startsWith('burn')) {
         return 'burned-out';
+      }
+      if (normalized.startsWith('very')) {
+        return 'very-high';
       }
       return normalized;
     }

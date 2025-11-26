@@ -37,13 +37,23 @@
       </button>
       <div class="slide-image-frame">
         <img id="slideImage" class="slide-image" alt="" role="presentation" />
+        <img id="slideSticker" class="slide-sticker" alt="" role="presentation" />
       </div>
       <p id="slideText" class="slide-text is-paused"></p>
     </section>
 
     <section id="settingScreen" class="setting-screen hidden" aria-live="polite">
       <div class="setting-inner">
-        <p id="settingIntro" class="setting-text">You wake up the next morning, excited about the pocas meeting, as you look outside your window:</p>
+        <p id="settingIntro" class="setting-text">You wake up the next day, excited about the pocas meeting, as you take in your surroundings:</p>
+        <div id="settingImageFrame" class="setting-image-frame hidden">
+          <img
+            id="settingImage"
+            class="setting-image"
+            alt="Illustration of the generated setting"
+            loading="lazy"
+            role="presentation"
+          />
+        </div>
         <p id="settingText" class="setting-text">Setting will unfold after the intro.</p>
         <button id="meetingBtn" type="button" class="cta tertiary">Go to the pocas meeting</button>
       </div>
@@ -186,21 +196,45 @@
           </p>
           <div class="protocolitos-grid">
             <div class="protocolitos-column protocolitos-column-primary">
-              <p class="protocolitos-column-title">Add or continue protocolitos</p>
+              <p class="protocolitos-column-title">Editor</p>
               <div class="protocolitos-column-body">
                 <div class="protocolitos-participants">
                   <p class="protocolitos-subheading">Participants</p>
                   <ul class="protocolitos-badge-list">
-                    <li><span class="protocolito-badge">Rok</span></li>
-                    <li><span class="protocolito-badge">Lien</span></li>
-                    <li><span class="protocolito-badge">Pablo</span></li>
-                    <li><span class="protocolito-badge">Laura</span></li>
+                    <li>
+                      <span class="protocolito-badge">
+                        Rok
+                        <small>MOTIVATION</small>
+                        <strong class="motivation-badge level-high">High</strong>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="protocolito-badge">
+                        Lien
+                        <small>MOTIVATION</small>
+                        <strong class="motivation-badge level-medium">Medium</strong>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="protocolito-badge">
+                        Pablo
+                        <small>MOTIVATION</small>
+                        <strong class="motivation-badge level-low">Low</strong>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="protocolito-badge">
+                        Laura
+                        <small>MOTIVATION</small>
+                        <strong class="motivation-badge level-very-high">Very high</strong>
+                      </span>
+                    </li>
                   </ul>
                 </div>
                 <form class="protocolito-form">
                   <label class="field">
-                    <span>Project or activity</span>
-                    <input type="text" name="protocolitoProject" placeholder="Project or activity" />
+                    <span>Protocolito title</span>
+                    <input type="text" name="protocolitoProject" placeholder="Short title of your project or activity." />
                   </label>
                   <label class="field">
                     <span>Protocolito draft</span>
@@ -217,80 +251,115 @@
               </div>
             </div>
             <div class="protocolitos-column protocolitos-column-secondary">
-              <p class="protocolitos-column-title">Existing protocolitos</p>
+              <p class="protocolitos-column-title">Archive</p>
               <div class="protocolitos-column-body">
-                <div class="protocolito-list">
-                  <p class="protocolitos-subheading">Previous protocolitos</p>
-                  <details class="protocolito-entry" open>
-                    <summary>
-                      <div class="protocolito-summary">
-                        <span class="protocolito-title">Mutual aid pantry stocking schedule</span>
-                        <button type="button" class="protocolito-action">＋</button>
-                      </div>
-                    </summary>
-                    <p class="protocolito-entry-body">
-                      Every Sunday, two volunteers inventory the pantry, publish shortages, and coordinate restocking before Tuesday evening.
-                    </p>
-                  </details>
-                  <details class="protocolito-entry">
-                    <summary>
-                      <div class="protocolito-summary">
+                <details class="protocolito-group" open>
+                  <summary class="protocolito-group-summary">
+                    <span>Previous protocolitos</span>
+                  </summary>
+                  <div class="protocolito-list">
+                    <div class="protocolito-entry">
+                      <details>
+                        <summary class="protocolito-summary">
+                          <span class="protocolito-title">Mutual aid pantry stocking schedule</span>
+                        </summary>
+                        <p class="protocolito-entry-body">
+                          Every Sunday, two volunteers inventory the pantry, publish shortages, and coordinate restocking before Tuesday evening.
+                        </p>
+                      </details>
+                    <div class="protocolito-actors">
+                      <span class="protocolito-actor-badge">Rok</span>
+                      <span class="protocolito-actor-badge">Lien</span>
+                      <span class="protocolito-actor-badge">Pablo</span>
+                    </div>
+                      <button type="button" class="protocolito-action">Make new version</button>
+                    </div>
+                  <div class="protocolito-entry">
+                    <details>
+                      <summary class="protocolito-summary">
                         <span class="protocolito-title">Night watch rotation</span>
-                        <button type="button" class="protocolito-action">＋</button>
-                      </div>
-                    </summary>
-                    <p class="protocolito-entry-body">
-                      Assign pairs for three-hour shifts, overlap by fifteen minutes for hand-offs, and log incidents in the shared ledger.
-                    </p>
-                  </details>
-                  <details class="protocolito-entry">
-                    <summary>
-                      <div class="protocolito-summary">
+                      </summary>
+                      <p class="protocolito-entry-body">
+                        Assign pairs for three-hour shifts, overlap by fifteen minutes for hand-offs, and log incidents in the shared ledger.
+                      </p>
+                    </details>
+                    <div class="protocolito-actors">
+                      <span class="protocolito-actor-badge">Laura</span>
+                      <span class="protocolito-actor-badge">Pablo</span>
+                    </div>
+                    <button type="button" class="protocolito-action">Make new version</button>
+                  </div>
+                  <div class="protocolito-entry">
+                    <details>
+                      <summary class="protocolito-summary">
                         <span class="protocolito-title">Conflict mediation triads</span>
-                        <button type="button" class="protocolito-action">＋</button>
-                      </div>
-                    </summary>
-                    <p class="protocolito-entry-body">
-                      Randomly select a facilitator trio monthly; any dispute pauses operations until the triad meets with both parties in person.
-                    </p>
-                  </details>
-                </div>
-                <div class="protocolito-list">
-                  <p class="protocolitos-subheading">New protocolitos</p>
-                  <details class="protocolito-entry">
-                    <summary>
-                      <div class="protocolito-summary">
-                        <span class="protocolito-title">Shared childcare swap board</span>
-                        <button type="button" class="protocolito-action">＋</button>
-                      </div>
-                    </summary>
-                    <p class="protocolito-entry-body">
-                      Pilot a weekly roster where caregivers log available hours and needs; confirmations happen in-app to avoid double bookings.
-                    </p>
-                  </details>
-                  <details class="protocolito-entry">
-                    <summary>
-                      <div class="protocolito-summary">
-                        <span class="protocolito-title">Tool library maintenance cadence</span>
-                        <button type="button" class="protocolito-action">＋</button>
-                      </div>
-                    </summary>
-                    <p class="protocolito-entry-body">
-                      Assign three roles—inspector, fixer, messenger—for each fortnight. Publish photos of issues before requesting spares.
-                    </p>
-                  </details>
-                  <details class="protocolito-entry">
-                    <summary>
-                      <div class="protocolito-summary">
-                        <span class="protocolito-title">Emergency cash pool triggers</span>
-                        <button type="button" class="protocolito-action">＋</button>
-                      </div>
-                    </summary>
-                    <p class="protocolito-entry-body">
-                      Define a checklist (medical, eviction, state repression) that auto-approves micro-grants once two coordinators co-sign.
-                    </p>
-                  </details>
-                </div>
+                      </summary>
+                      <p class="protocolito-entry-body">
+                        Randomly select a facilitator trio monthly; any dispute pauses operations until the triad meets with both parties in person.
+                      </p>
+                    </details>
+                    <div class="protocolito-actors">
+                      <span class="protocolito-actor-badge">Rok</span>
+                      <span class="protocolito-actor-badge">Laura</span>
+                      <span class="protocolito-actor-badge">Lien</span>
+                    </div>
+                    <button type="button" class="protocolito-action">Make new version</button>
+                  </div>
+                  </div>
+                </details>
+                <details class="protocolito-group" open>
+                  <summary class="protocolito-group-summary">
+                    <span>New protocolitos</span>
+                  </summary>
+                  <div class="protocolito-list">
+                    <div class="protocolito-entry protocolito-entry--new">
+                      <details>
+                        <summary class="protocolito-summary">
+                          <span class="protocolito-title">Shared childcare swap board</span>
+                        </summary>
+                        <p class="protocolito-entry-body">
+                          Pilot a weekly roster where caregivers log available hours and needs; confirmations happen in-app to avoid double bookings.
+                        </p>
+                      </details>
+                    <div class="protocolito-actors">
+                      <span class="protocolito-actor-badge">Lien</span>
+                      <span class="protocolito-actor-badge">Rok</span>
+                    </div>
+                      <button type="button" class="protocolito-action">Edit</button>
+                    </div>
+                    <div class="protocolito-entry protocolito-entry--new">
+                      <details>
+                        <summary class="protocolito-summary">
+                          <span class="protocolito-title">Tool library maintenance cadence</span>
+                        </summary>
+                        <p class="protocolito-entry-body">
+                          Assign three roles—inspector, fixer, messenger—for each fortnight. Publish photos of issues before requesting spares.
+                        </p>
+                      </details>
+                    <div class="protocolito-actors">
+                      <span class="protocolito-actor-badge">Pablo</span>
+                      <span class="protocolito-actor-badge">Laura</span>
+                    </div>
+                      <button type="button" class="protocolito-action">Edit</button>
+                    </div>
+                    <div class="protocolito-entry protocolito-entry--new">
+                      <details>
+                        <summary class="protocolito-summary">
+                          <span class="protocolito-title">Emergency cash pool triggers</span>
+                        </summary>
+                        <p class="protocolito-entry-body">
+                          Define a checklist (medical, eviction, state repression) that auto-approves micro-grants once two coordinators co-sign.
+                        </p>
+                      </details>
+                    <div class="protocolito-actors">
+                      <span class="protocolito-actor-badge">Rok</span>
+                      <span class="protocolito-actor-badge">Pablo</span>
+                      <span class="protocolito-actor-badge">Lien</span>
+                    </div>
+                      <button type="button" class="protocolito-action">Edit</button>
+                    </div>
+                  </div>
+                </details>
               </div>
             </div>
           </div>
