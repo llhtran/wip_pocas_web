@@ -692,13 +692,13 @@ summary{
 }
 
 .pocas-header {
-  max-height: 20vh;
   background-color: var(--accent-color);
   color: var(--bg-color);
   display: flex;
   align-items: stretch;
   justify-content: center;
-  padding: min(6vw, 3rem) min(5vw, 3rem);
+  padding: min(2.5vw, 1.5rem) min(5vw, 3rem);
+  overflow: hidden;
 }
 
 .pocas-header-columns {
@@ -717,6 +717,8 @@ summary{
   border-radius: 0.75rem;
   padding: clamp(0.75rem, 2vw, 1.5rem);
   background: rgba(0, 0, 0, 0.12);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .pocas-help-cell {
@@ -775,12 +777,16 @@ summary{
   font-size: clamp(1.8rem, 4vw, 3rem);
   letter-spacing: 0.08em;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .pocas-round-details {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .pocas-round-number {
@@ -788,6 +794,8 @@ summary{
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   letter-spacing: 0.08em;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .pocas-round-name,
@@ -797,6 +805,8 @@ summary{
   font-size: clamp(0.85rem, 1.6vw, 1rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .pocas-band {

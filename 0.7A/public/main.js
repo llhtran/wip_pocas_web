@@ -60,10 +60,10 @@ let roundTimerRemainingSeconds = 0;
 let pocasSessionActive = false;
 
 const roundSchedule = [
-  { label: 'Round 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9 },
-  { label: 'Round 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9 },
-  { label: 'Round 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9 },
-  { label: 'Round 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9 }
+  { label: 'ROUND 01', name: 'Getting Started', duration: 'Duration: 3 months', timerMinutes: 9 },
+  { label: 'ROUND 02', name: 'Deep Alignment', duration: 'Duration: 2 months', timerMinutes: 9 },
+  { label: 'ROUND 03', name: 'Operational Sprint', duration: 'Duration: 6 weeks', timerMinutes: 9 },
+  { label: 'ROUND 04', name: 'Review & Adapt', duration: 'Duration: 1 month', timerMinutes: 9 }
 ];
 
 const DEFAULT_ROUND_TIMER_MINUTES = 9;
@@ -618,16 +618,20 @@ if (pocasHelpButton) {
 }
 
 function getRoundTimerMinutes(index = currentRoundIndex) {
-  const minutes = roundSchedule[index]?.timerMinutes;
-  if (typeof minutes === 'number' && minutes > 0) {
-    return minutes;
-  }
-  return DEFAULT_ROUND_TIMER_MINUTES;
+  // All rounds use a fixed duration of 1 minute 8 seconds (68 seconds).
+  // We keep the return value in minutes for compatibility with existing logic.
+  return 68 / 60;
 }
 
 function updateTimerDisplay() {
   if (!pocasTimerDisplay) return;
   const safeTime = Math.max(0, roundTimerRemainingSeconds);
+  // Only show the timer when 60 seconds or less remain.
+  if (safeTime <= 60) {
+    pocasTimerDisplay.classList.remove('hidden');
+  } else {
+    pocasTimerDisplay.classList.add('hidden');
+  }
   const minutes = String(Math.floor(safeTime / 60)).padStart(2, '0');
   const seconds = String(safeTime % 60).padStart(2, '0');
   pocasTimerDisplay.textContent = `${minutes}:${seconds}`;
