@@ -921,20 +921,17 @@ if (creditsResizeHandle && creditsContainer) {
 }
 
 function getRoundTimerMinutes(index = currentRoundIndex) {
-  // All rounds use a fixed duration of 1 minute 8 seconds (68 seconds).
-  // We keep the return value in minutes for compatibility with existing logic.
-  return 68 / 60;
+  const minutes = roundSchedule[index]?.timerMinutes;
+  if (typeof minutes === 'number' && minutes > 0) {
+    return minutes;
+  }
+  return 9 // default round timer minutes;
 }
 
 function updateTimerDisplay() {
   if (!pocasTimerDisplay) return;
   const safeTime = Math.max(0, roundTimerRemainingSeconds);
-  // Only show the timer when 60 seconds or less remain.
-  if (safeTime <= 60) {
-    pocasTimerDisplay.classList.remove('hidden');
-  } else {
-    pocasTimerDisplay.classList.add('hidden');
-  }
+  pocasTimerDisplay.classList.remove('hidden');
   const minutes = String(Math.floor(safeTime / 60)).padStart(2, '0');
   const seconds = String(safeTime % 60).padStart(2, '0');
   pocasTimerDisplay.textContent = `${minutes}:${seconds}`;
