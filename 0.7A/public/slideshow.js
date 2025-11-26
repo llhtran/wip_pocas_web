@@ -6,7 +6,7 @@ const IMAGE_REVEAL_DELAY_MS = 1000;
 const STICKER_DELAY_AFTER_IMAGE_MS = 2800;
 const STICKER_REVEAL_DELAY_FROM_LOAD_MS = IMAGE_REVEAL_DELAY_MS + STICKER_DELAY_AFTER_IMAGE_MS;
 
-const STICKER_CORNERS = ['corner-top-left', 'corner-top-right', 'corner-bottom-left', 'corner-bottom-right'];
+const STICKER_CORNERS = ['corner-top-left', 'corner-top-right'];
 
 const PRONOUN_FORMS = {
   they: {
@@ -57,7 +57,7 @@ const SCRIPT_SLIDES = [
   () => ({
     image: '/media/slides/03-img.png',
     sticker: '/media/slides/03-sticker.png',
-    text: 'You eat it... A heat wave sets your tongue on fire. It hurts! But the intense pain is immediately followed by a delicious, bitter-sweet chocolate core that melts inside your mouth, soothing the initial burn.'
+    text: 'You eat it... A heat wave sets your tongue on fire. It hurts! But the intense pain is immediately followed by a soothing, bitter-sweet chocolate core melting inside your mouth.'
   }),
   ({ name }) => ({
     image: '/media/slides/04-img.png',
@@ -67,7 +67,7 @@ const SCRIPT_SLIDES = [
   () => ({
     image: '/media/slides/05-img.png',
     sticker: '/media/slides/05-sticker.png',
-    text: 'You\'ve heard rumors of this strange new "mutualist" model for autonomous spaces called "pocas" (poca organización colaborativa de auto-servicio).\n It seems a few have already spawned across the city.'
+    text: 'You\'ve heard rumors of this new "mutualist" model for autonomous spaces called "pocas" (poca organización colaborativa de auto-servicio). It seems a few have already spawned across the city.'
   }),
   ({ name }) => ({
     image: '/media/slides/06-img.png',
@@ -176,6 +176,9 @@ function resetStickerState(instance) {
   hideStickerInstant(stickerEl);
   STICKER_CORNERS.forEach((cornerClass) => stickerEl.classList.remove(cornerClass));
   stickerEl.removeAttribute('src');
+  stickerEl.style.left = '';
+  stickerEl.style.right = '';
+  stickerEl.style.top = '';
 }
 
 function pickStickerCorner(previousCorner) {
@@ -204,7 +207,36 @@ function applyStickerCorner(stickerEl, corner) {
   }
 }
 
-function loadStickerAsset(instance, source) {
+function positionStickerAtCorner(instance, corner) {
+  const { container, textEl, stickerEl } = instance;
+  if (!container || !textEl || !stickerEl || !corner) {
+    return;
+  }
+  const containerRect = container.getBoundingClientRect();
+  const textRect = textEl.getBoundingClientRect();
+  if (!textRect.width || !textRect.height) {
+    return;
+  }
+  const stickerRect = stickerEl.getBoundingClientRect();
+  const stickerWidth = stickerRect.width || stickerEl.naturalWidth || 0;
+  const stickerHeight = stickerRect.height || stickerEl.naturalHeight || 0;
+  const topBase = textRect.top - containerRect.top;
+  const leftBase = textRect.left - containerRect.left;
+  const rightBase = containerRect.right - textRect.right;
+  const topOffset = Math.max(0, topBase - stickerHeight * 0.45);
+  stickerEl.style.top = `${topOffset}px`;
+  if (corner === 'corner-top-left') {
+    const leftOffset = Math.max(0, leftBase - stickerWidth * 0.35);
+    stickerEl.style.left = `${leftOffset}px`;
+    stickerEl.style.right = '';
+  } else {
+    const rightOffset = Math.max(0, rightBase - stickerWidth * 0.35);
+    stickerEl.style.right = `${rightOffset}px`;
+    stickerEl.style.left = '';
+  }
+}
+
+function loadStickerAsset(instance, source, corner) {
   const { stickerEl } = instance;
   if (!stickerEl || !source) {
     return Promise.resolve();
@@ -215,6 +247,7 @@ function loadStickerAsset(instance, source) {
       stickerEl.removeEventListener('load', settle);
       stickerEl.removeEventListener('error', settle);
       requestAnimationFrame(() => {
+        positionStickerAtCorner(instance, corner);
         stickerEl.classList.add('visible');
       });
       resolve();
@@ -238,7 +271,7 @@ function revealStickerAfterImage(instance, source) {
   const corner = pickStickerCorner(instance.lastStickerCorner);
   instance.lastStickerCorner = corner;
   applyStickerCorner(instance.stickerEl, corner);
-  return delay(STICKER_REVEAL_DELAY_FROM_LOAD_MS).then(() => loadStickerAsset(instance, source));
+  return delay(STICKER_REVEAL_DELAY_FROM_LOAD_MS).then(() => loadStickerAsset(instance, source, corner));
 }
 
 function typeTextWithCaret(instance, text = '') {
@@ -330,6 +363,19 @@ export class IntroSlideshow {
     this.textEl = textEl || null;
     this.onSlideStart = typeof onSlideStart === 'function' ? onSlideStart : null;
     this.lastStickerCorner = null;
+    if (typeof window !== 'undefined') {
+      this.handleResize = () => {
+        if (
+          this.stickerEl &&
+          this.lastStickerCorner &&
+          this.stickerEl.classList.contains('visible')
+        ) {
+          positionStickerAtCorner(this, this.lastStickerCorner);
+        }
+      };
+      window.addEventListener('resize', this.handleResize);
+      window.addEventListener('orientationchange', this.handleResize);
+    }
   }
 
   async run(slides) {

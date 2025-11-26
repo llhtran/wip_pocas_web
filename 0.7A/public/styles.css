@@ -32,7 +32,7 @@
   --text-color: #eee;
   --accent-color: #ff42b4;
   --base-font-size: 1rem;
-  --section-copy-size: clamp(1.1rem, 2vw, 1.5rem);
+  --section-copy-size: clamp(1rem, 1.8vw, 1.35rem);
   --heading-letter-spacing: 0.08em;
   --button-padding-y: 0.75rem;
   --button-padding-x: 2.3rem;
@@ -206,6 +206,7 @@ h2,
   letter-spacing: var(--heading-letter-spacing);
   text-transform: uppercase;
   cursor: pointer;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   opacity: 0;
   transition: opacity 200ms ease;
   z-index: 4;
@@ -237,6 +238,7 @@ h2,
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
   filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.9));
   opacity: 0;
   transition: opacity 500ms ease;
@@ -248,66 +250,47 @@ h2,
 
 .slide-sticker {
   position: absolute;
-  max-width: clamp(90px, 18vw, 200px);
-  width: 24%;
+  width: clamp(70px, 12vw, 140px);
+  max-width: clamp(80px, 14vw, 150px);
   opacity: 0;
   transform: translateY(-8%) scale(1.2);
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.7));
   transition: opacity 350ms ease, transform 350ms ease;
   pointer-events: none;
-  z-index: 2;
+  z-index: 15;
 }
 
 .slide-sticker.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
-
-.slide-sticker.corner-top-left {
-  top: clamp(1rem, 4vw, 3rem);
-  left: clamp(1rem, 4vw, 3rem);
-}
-
-.slide-sticker.corner-top-right {
-  top: clamp(1rem, 4vw, 3rem);
-  right: clamp(1rem, 4vw, 3rem);
-}
-
-.slide-sticker.corner-bottom-left {
-  bottom: clamp(1rem, 4vw, 3rem);
-  left: clamp(1rem, 4vw, 3rem);
-}
-
-.slide-sticker.corner-bottom-right {
-  bottom: clamp(1rem, 4vw, 3rem);
-  right: clamp(1rem, 4vw, 3rem);
-}
-
 .slide-text {
   position: relative;
   z-index: 3;
-  width: min(620px, 90vw);
+  width: min(80vw, 98vw);
   min-height: clamp(10rem, 18vh, 16rem);
-  margin: clamp(1rem, 3vw, 2rem) auto clamp(0.75rem, 2vw, 1.5rem);
+  margin: -1.5vw auto;
   margin-top: auto;
-  padding: clamp(2.5rem, 4vw, 3rem) clamp(1.5rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 2.5rem);
+  padding-top: clamp(1.5rem, 2.5vw, 2rem);
+  padding-left: 3vw;
+  padding-right: 3vw;
+  padding-bottom: 1.5vw;
   font-size: var(--section-copy-size);
   font-weight: 700;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
+  line-height: 1.4;
   border: 1px solid var(--accent-color);
   border-radius: 1rem;
   text-align: left;
-  min-height: 6rem;
+  min-height: 8rem;
   white-space: pre-wrap;
   background: rgba(30, 0, 40, 0.3);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 25px 55px rgba(0, 0, 0, 0.55);
 }
 
 .slide-text::before {
-  content: 'pocas transmission';
+  content: '. ⋅ ˚̣- : ✧ : – ⭒ ⊹ ⭒ – : ✧ : -˚̣⋅ .';
   position: absolute;
   top: 0;
   left: 0;
@@ -315,9 +298,9 @@ h2,
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.45rem 0.75rem;
+  padding: 0.1rem 0.2rem;
   font-family: var(--display-font);
-  font-size: clamp(0.75rem, 1.6vw, 0.95rem);
+  font-size: clamp(0.6rem, 1.1vw, 0.7rem);
   letter-spacing: var(--heading-letter-spacing);
   text-transform: uppercase;
   background: var(--accent-color);
